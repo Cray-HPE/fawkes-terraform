@@ -33,6 +33,12 @@ variable "volume_format" {
   type        = string
 }
 
+variable "volume_arch" {
+  default     = "x86_64"
+  description = "Architecture of the image"
+  type        = string
+}
+
 variable "volume_uri" {
   description = "URI to volumes (without the file extension)"
   type        = string
