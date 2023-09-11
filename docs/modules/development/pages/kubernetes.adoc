@@ -6,7 +6,7 @@
 By default, the development variables in `dev.auto.tfvars` will load.
 These should be customized by the developer if their defaults are insufficient.
 
-NOTE:: To load production variables, use `--var-file ./prod.tfvars`.
+NOTE: To load production variables, use `--var-file ./prod.tfvars`.
 Production variables will cater to expectations (such as interfaces) from a Fawkes hypervisor server..
 
 == Local Development on a workstation
@@ -32,7 +32,7 @@ terraform init
 terraform plan
 ----
 
-== Development on a Fawkes System
+== Deployment on a Fawkes System
 
 === Prerequisites
 
@@ -50,5 +50,5 @@ cd /srv/cray/terraform
 +
 [source,bash]
 ----
-terraform plan
+terraform plan -var-file="prod.tfvars"
 ----

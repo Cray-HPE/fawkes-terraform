@@ -22,4 +22,4 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 interfaces = ["eth0"]
-volume_uri = "../node-images/output-kubernetes-vm/kubernetes-vm"
+volume_uri = "/vms/images/kubernetes-vm"

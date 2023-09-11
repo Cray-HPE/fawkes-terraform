@@ -21,7 +21,21 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-module "kubernetes-worker" {
+terraform {
+  required_providers {
+    libvirt = {
+      source  = "dmacvicar/libvirt"
+      version = ">= 0.7.0"
+    }
+  }
+}
+
+provider "libvirt" {
+  alias = "host-01"
+  uri = "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519"
+}
+
+module "kubernetes-worker-01" {
   source        = "./modules/kubernetes"
   vm_name       = "k8s-vm-worker"
   pool          = "kubernetes-vm"
@@ -29,4 +43,43 @@ module "kubernetes-worker" {
   volume_uri    = var.volume_uri
   volume_format = var.volume_format
   system_volume = 100
+  providers = {
+    libvirt = libvirt.host-01
+  }
+}
+
+provider "libvirt" {
+  alias = "host-02"
+  uri = "qemu+ssh://root@ncn-h002.mtl/system?keyfile=/root/.ssh/id_ed25519"
+}
+
+module "kubernetes-worker-02" {
+  source        = "./modules/kubernetes"
+  vm_name       = "k8s-vm-worker"
+  pool          = "kubernetes-vm"
+  interfaces    = var.interfaces
+  volume_uri    = var.volume_uri
+  volume_format = var.volume_format
+  system_volume = 100
+  providers = {
+    libvirt = libvirt.host-02
+  }
+}
+
+provider "libvirt" {
+  alias = "host-03"
+  uri = "qemu+ssh://root@ncn-h003.mtl/system?keyfile=/root/.ssh/id_ed25519"
+}
+
+module "kubernetes-worker-03" {
+  source        = "./modules/kubernetes"
+  vm_name       = "k8s-vm-worker"
+  pool          = "kubernetes-vm"
+  interfaces    = var.interfaces
+  volume_uri    = var.volume_uri
+  volume_format = var.volume_format
+  system_volume = 100
+  providers = {
+    libvirt = libvirt.host-03
+  }
 }
