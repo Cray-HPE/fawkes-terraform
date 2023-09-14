@@ -22,4 +22,4 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 interfaces = ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
-volume_uri = "http://bootserver/nexus/kubernetes-vm"
+volume_uri = "http://bootserver/nexus/repository/os-images/kubernetes-vm"
