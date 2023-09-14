@@ -30,7 +30,7 @@ resource "libvirt_pool" "base-pool-name" {
 resource "libvirt_volume" "base-volume" {
   name   = format("${var.vm_name}-base.${var.volume_format}")
   pool   = libvirt_pool.base-pool-name.name
-  source = format("${var.volume_uri}.${var.volume_format}")
+  source = format("${var.volume_uri}-${var.volume_arch}.${var.volume_format}")
   format = var.volume_format
 }
 
