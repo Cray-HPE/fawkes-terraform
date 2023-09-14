@@ -21,32 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-terraform {
-  required_providers {
-    libvirt = {
-      source  = "dmacvicar/libvirt"
-      version = ">= 0.7.0"
-    }
-  }
-}
-
-provider "libvirt" {
-  alias = "k8s-worker"
-  uri   = var.libvirt_uri
-}
-
-module "kubernetes-worker" {
-  source        = "./modules/kubernetes"
-  vm_name       = "k8s-vm-worker"
-  pool          = "kubernetes-vm"
-  interfaces    = var.interfaces
-  volume_arch   = var.volume_arch
-  volume_uri    = var.volume_uri
-  volume_format = var.volume_format
-  libvirt_uri   = var.libvirt_uri
-  system_volume = 100
-  providers     = {
-    libvirt = libvirt.k8s-worker
-  }
-}
-
+interfaces  = ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
+libvirt_uri = "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519"
+volume_uri  = "http://bootserver/kubernetes-vm"
+volume_arch = "x86_64"

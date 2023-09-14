@@ -82,3 +82,8 @@ variable "interfaces" {
   description = "List of host interfaces that will the VM will receive a macvtap interface for"
   type        = list(string)
 }
+
+variable "libvirt_uri" {
+  description = "QEMU System URI"
+  type        = string
+}

@@ -43,3 +43,8 @@ variable "volume_uri" {
   description = "URI to volumes (without the file extension)"
   type        = string
 }
+
+variable "libvirt_uri" {
+  description = "QEMU System URI"
+  type        = string
+}
