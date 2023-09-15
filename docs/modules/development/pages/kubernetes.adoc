@@ -7,9 +7,16 @@ By default, the development variables in `dev.auto.tfvars` will load.
 These should be customized by the developer if their defaults are insufficient.
 
 NOTE: To load production variables, use `--var-file ./prod.tfvars`.
-Production variables will cater to expectations (such as interfaces) from a Fawkes hypervisor server..
+Production variables will cater to expectations (such as interfaces) from a Fawkes hypervisor server. In most cases, `./staging.tfvars` is sufficient for emulating `prod.tfvars`.
 
-== Local Development on a workstation
+== `.tfvars`
+
+`dev.auto.tfvars`:: The default variables, for a local hypervisor host (such as a VM).
+`dev.local.tfvars`:: Another development environment for local builds. This environment expects images to exist in a cloned node-images repository that neighbors this repository.
+`prod.test.tfvars`:: A staging environment that uses production variables, but instead of pulling images from Nexus it pulls them from the web server on the management VM. This expedites testing, the developer does not need to upload their images to nexus before running `terraform apply`.
+`prod.tfvars`:: Production environment, expects the images to exist in Nexus and the target hypervisors to be configured with all of their interfaces.
+
+== Local Development on a virtual machine or standalone host
 
 === Prerequisites
 
@@ -19,6 +26,22 @@ Production variables will cater to expectations (such as interfaces) from a Fawk
 
 === Launching VMs
 
+. Copy images into `/vms/images`
++
+[source,bash]
+----
+mkdir -p /vms/images
+scp remote-server:/my/folder/kubernetes-aa31de1-1694050687315-x86_64.qcow2 /vms/images/
+ln -snf ./kubernetes-aa31de1-1694050687315-x86_64.qcow2 /vms/images/kubernetes-x86_64.qcow2
+----
++
+Looks like:
++
+[source,bash]
+----
+/vms/images/kubernetes-aa31de1-1694050687315-x86_64.qcow2
+/vms/images/kubernetes-x86_64.qcow2 -> ./kubernetes-aa31de1-1694050687315-x86_64.qcow2
+----
 . Initialize Terraform
 +
 [source,bash]
@@ -32,7 +55,7 @@ terraform init
 terraform plan
 ----
 
-== Deployment on a Fawkes System
+== Test deployment on a Fawkes System
 
 === Prerequisites
 
@@ -40,7 +63,22 @@ terraform plan
 
 === Launching VMs
 
-. Change into the Terraform root, there should be an existing `.terraform` folder already so `terraform init` is not necessary
+. Place the VM images in `/var/www`, and point a symbolic link at it.
++
+[source,bash]
+----
+scp remote-server:/my/folder/kubernetes-aa31de1-1694050687315-x86_64.qcow2 /var/www
+ln -snf ./kubernetes-aa31de1-1694050687315-x86_64.qcow2 /var/www/kubernetes-x86_64.qcow2
+----
++
+Looks like:
++
+[source,bash]
+----
+/var/www/kubernetes-aa31de1-1694050687315-x86_64.qcow2
+/var/www/kubernetes-x86_64.qcow2 -> ./kubernetes-aa31de1-1694050687315-x86_64.qcow2
+----
+. Change into the Terraform root, there should be an existing `.terraform` folder already so `terraform init` is not necessary.
 +
 [source,bash]
 ----
@@ -50,5 +88,5 @@ cd /srv/cray/terraform
 +
 [source,bash]
 ----
-terraform plan -var-file="prod.tfvars"
+terraform plan -var-file="prod.test.tfvars"
 ----

@@ -21,5 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-interfaces = ["eth0"]
-volume_uri = "/vms/images/kubernetes-vm"
+interfaces  = ["eth0"]
+libvirt_uri = "qemu:///system"
+volume_uri  = "/vms/images/kubernetes-vm"
+volume_arch = "x86_64"

@@ -30,10 +30,6 @@ terraform {
   }
 }
 
-provider "libvirt" {
-  uri = "qemu:///system"
-}
-
 resource "libvirt_domain" "main" {
   name       = var.vm_name
   memory     = var.memory
@@ -41,7 +37,7 @@ resource "libvirt_domain" "main" {
   autostart  = true
   qemu_agent = true
 
-  cloudinit = libvirt_cloudinit_disk.common-init.id
+  cloudinit = libvirt_cloudinit_disk.commoninit.id
 
   dynamic "network_interface" {
     for_each = var.interfaces
@@ -58,6 +54,12 @@ resource "libvirt_domain" "main" {
     type        = "pty"
     target_type = "serial"
     target_port = "0"
+  }
+
+  console {
+    type        = "pty"
+    target_type = "virtio"
+    target_port = "1"
   }
 
   graphics {

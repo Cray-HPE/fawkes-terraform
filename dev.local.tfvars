@@ -21,6 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-output "ip" {
-  value = libvirt_domain.main.network_interface
-}
+interfaces  = ["eth0"]
+libvirt_uri = "qemu:///system"
+volume_uri  = "../node-images/output-kubernetes-vm-qemu/kubernetes-vm"
+volume_arch = "x86_64"
