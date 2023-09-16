@@ -21,32 +21,10 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-terraform {
-  required_providers {
-    libvirt = {
-      source  = "dmacvicar/libvirt"
-      version = ">= 0.7.0"
-    }
-  }
+output "name" {
+  value = libvirt_network.network.name
 }
 
-provider "libvirt" {
-  alias = "k8s-worker"
-  uri   = var.libvirt_uri
+output "id" {
+  value = libvirt_network.network.id
 }
-
-module "kubernetes-worker" {
-  source        = "./modules/kubernetes"
-  vm_name       = "k8s-vm-worker"
-  pool          = "kubernetes-vm"
-  interfaces    = var.interfaces
-  volume_arch   = var.volume_arch
-  volume_uri    = var.volume_uri
-  volume_format = var.volume_format
-  libvirt_uri   = var.libvirt_uri
-  system_volume = 100
-  providers     = {
-    libvirt = libvirt.k8s-worker
-  }
-}
-

@@ -21,30 +21,11 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-variable "interfaces" {
-  default     = []
-  description = "List of host interfaces that will the VM will receive a macvtap interface for"
-  type        = list(string)
-}
-
-variable "volume_format" {
-  default     = "qcow2"
-  description = "Format of the volume"
-  type        = string
-}
-
-variable "volume_arch" {
-  default     = "x86_64"
-  description = "Architecture of the image"
-  type        = string
-}
-
-variable "volume_uri" {
-  description = "URI to volumes (without the file extension)"
-  type        = string
-}
-
-variable "libvirt_uri" {
-  description = "QEMU System URI"
-  type        = string
+terraform {
+  required_providers {
+    libvirt = {
+      source  = "dmacvicar/libvirt"
+      version = "0.7.1"
+    }
+  }
 }

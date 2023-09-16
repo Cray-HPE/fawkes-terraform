@@ -1,0 +1,36 @@
+= Setup
+:toc:
+:toclevels: 3
+
+== Installing Terraform and Terragrunt
+
+At the time of writing, we are confined to an old version of Terraform based on the version SUSE releases.
+
+=== MacOS
+
+We recommend using link:https://github.com/tfutils/tfenv[`tfenv`] to handle your Terraform versions.
+
+. Install `tfenv`
++
+[source,bash]
+----
+brew install tfenv
+----
+. Install Terraform
++
+[source,bash]
+----
+tfenv install 0.13.4
+----
+. Activate Terraform
++
+[source,bash]
+----
+tfenv use 0.13.6
+----
+. Install Terragrunt
++
+[source,bash]
+----
+brew install terragrunt@0.51
+----

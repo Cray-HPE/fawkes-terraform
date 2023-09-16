@@ -21,7 +21,29 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-interfaces  = ["eth0"]
-libvirt_uri = "qemu:///system"
-volume_uri  = "../node-images/output-kubernetes-vm-qemu/kubernetes-vm"
-volume_arch = "x86_64"
+
+include {
+  path   = find_in_parent_folders()
+  expose = true
+}
+
+terraform {
+  source = "${get_parent_terragrunt_dir()}/modules/noop"
+}
+
+generate "network" {
+  path      = "network.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+%{for hv_name, hv_attrs in include.locals.hypervisors~}
+module "${hv_name}-isolated-network" {
+  source    = "${get_parent_terragrunt_dir()}/modules/network"
+  name      = local.local_networks.${hv_name}.local_network.name
+  addresses = local.local_networks.${hv_name}.local_network.addresses
+  providers = {
+    libvirt = libvirt.${hv_name}
+  }
+}
+%{endfor~}
+EOF
+}

@@ -1,0 +1,103 @@
+globals:
+  env_name: prod
+
+hypervisor_defaults: {}
+
+# This needs to match the roles
+volumes_defaults:
+  master:
+    - name: root
+      mount: /
+      size: 100
+      wwn: 300000000000b001
+      use_base_volume: true
+      fs_type: xfs
+      label: root
+    - name: containerd
+      mount: /var/lib/containerd
+      size: 100
+      wwn: 3000000000a1eead
+      fs_type: xfs
+      label: CONLIB
+    - name: run-containerd
+      mount: /run/containerd
+      size: 100
+      wwn: 300000c0e1a1eead
+      fs_type: xfs
+      label: CONRUN
+    - name: kubelet
+      mount: /var/lib/kubelet
+      size: 10
+      wwn: 300000000c0be1e1
+      fs_type: xfs
+      label: K8SLET
+  etcd:
+    - name: etcd
+      mount: /var/lib/etcd
+      size: 32
+      wwn: 300000000000e1cd
+      fs_type: xfs
+      label: ETCDK8S
+  worker:
+    - name: root
+      mount: /
+      size: 100
+      wwn: 300000000000b001
+      use_base_volume: true
+      fs_type: xfs
+      label: root
+    - name: containerd
+      mount: /var/lib/containerd
+      size: 100
+      wwn: 3000000000a1eead
+      fs_type: xfs
+      label: CONLIB
+    - name: run-containerd
+      mount: /run/containerd
+      size: 100
+      wwn: 300000c0e1a1eead
+      fs_type: xfs
+      label: CONRUN
+    - name: kubelet
+      mount: /var/lib/kubelet
+      size: 10
+      wwn: 300000000c0be1e1
+      fs_type: xfs
+      label: K8SLET
+
+node_defaults:
+  vcpu: 4
+  memory: 16384
+  interfaces:
+    - bond0.nmn0
+    - bond0.hmn0
+    - bond0.cmn0
+  storage_pool_prefix: /vms/storeA/pools
+  base_volume:
+    arch: x86_64
+    format: qcow2
+    name: kubernetes-vm
+    size: 100
+    uri: "http://bootserver/nexus/repository/fawkes-images/kubernetes-vm"
+  ssh_keys: []
+
+hypervisors:
+  ncn-h001:
+    uri: "qemu+ssh://root@hypervisor.local/system?keyfile=/root/.ssh/id_ed25519"
+    vms:
+      v001:
+        roles:
+        - master
+        - etcd
+  ncn-h002:
+    uri: "qemu+ssh://root@ncn-h002/system?keyfile=/root/.ssh/id_ed25519"
+    vms:
+      v001:
+        roles:
+        - worker
+  ncn-h003:
+    uri: "qemu+ssh://root@ncn-h003/system?keyfile=/root/.ssh/id_ed25519"
+    vms:
+      v001:
+        roles:
+        - worker

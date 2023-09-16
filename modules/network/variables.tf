@@ -21,7 +21,45 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-interfaces  = ["eth0"]
-libvirt_uri = "qemu:///system"
-volume_uri  = "/vms/images/kubernetes-vm"
-volume_arch = "x86_64"
+
+variable "name" {
+  description = "Name of the network"
+  type        = string
+  default     = "mypool"
+}
+
+variable "autostart" {
+  description = "If the network should start with the system"
+  type        = bool
+  default     = true
+}
+
+variable "mode" {
+  description = "The network mode"
+  type        = string
+  default     = "none"
+}
+
+variable "addresses" {
+  description = "Address available for the network"
+  type        = list(string)
+  default     = ["192.168.1.0/24"]
+}
+
+variable "dns_enabled" {
+  description = "If DNS is enabled on the network"
+  type        = bool
+  default     = true
+}
+
+variable "dns_local_only" {
+  description = "If DNS is local only on the network"
+  type        = bool
+  default     = true
+}
+
+variable "dhcp_enabled" {
+  description = "If DHCP is enabled on the network"
+  type        = bool
+  default     = true
+}

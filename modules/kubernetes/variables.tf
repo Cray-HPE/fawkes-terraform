@@ -21,34 +21,44 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-variable "volume_arch" {
-  description = "Architecture of the image"
-  type        = string
+
+### REQUIRED SECTION
+
+variable "volumes" {
+  description = "List of volumes for the VM"
+  type        = list(map(any))
+}
+
+### OPTIONAL SECTION
+
+variable "roles" {
+  description = "List of roles for the VM"
+  type        = list(string)
+  default     = ["worker"]
 }
 
 variable "volume_format" {
   description = "Format of the volume"
   type        = string
+  default     = "qcow2"
 }
 
-variable "volume_uri" {
-  description = "URI to volumes (without the file extension)"
-  type        = string
+variable "base_volume" {
+  default = {
+    name   = "kubernetes-vm"
+    uri    = "/vms/images"
+    arch   = "x86_64"
+    format = "qcow2"
+  }
 }
 
-variable "base_volume_name" {
-  description = "Base name of the volume"
-  type        = string
-  default     = null
+variable "default_volume_size" {
+  description = "Volume size in GB"
+  type        = number
+  default     = 21
 }
 
-variable "base_pool_name" {
-  description = "Base name of the pool"
-  type        = string
-  default     = null
-}
-
-variable "vm_name" {
+variable "name" {
   description = "Name of the VM"
   type        = string
   default     = "kubernetes"
@@ -66,24 +76,31 @@ variable "vcpu" {
   default     = 2
 }
 
-variable "pool" {
-  description = "Name of pool for volumes"
-  type        = string
-  default     = "default"
-}
-
-variable "system_volume" {
-  description = "System volume size in GB"
-  type        = number
-  default     = 20
+variable "local_networks" {
+  description = "A list of local networks to add to the VM. This is used for development."
+  type        = list(string)
+  default     = []
 }
 
 variable "interfaces" {
   description = "List of host interfaces that will the VM will receive a macvtap interface for"
   type        = list(string)
+  default     = ["eth0"]
 }
 
-variable "libvirt_uri" {
-  description = "QEMU System URI"
+variable "environment" {
+  description = "Create special resources for development environments"
   type        = string
+  default     = "dev"
+}
+
+variable "storage_pool_prefix" {
+  description = "Local path to the storage pool"
+  default     = "/var/lib/libvirt"
+  type        = string
+}
+
+variable "ssh_keys" {
+  type = list(string)
+  default = []
 }

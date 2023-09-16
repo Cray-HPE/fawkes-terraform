@@ -1,0 +1,100 @@
+globals:
+  env_name: dev
+
+hypervisor_defaults:
+  uri: qemu:///system
+  local_network:
+    name: isolated
+    addresses:
+      - 192.168.201.0/24
+    dhcp: true
+
+# this needs to match the VM roles
+volumes_defaults:
+  master:
+    - name: root
+      mount: /
+      size: 100
+      wwn: 300000000000b001
+      use_base_volume: true
+      fs_type: xfs
+      label: root
+    - name: containerd
+      mount: /var/lib/containerd
+      size: 10
+      wwn: 3000000000a1eead
+      fs_type: xfs
+      label: CONLIB
+    - name: run-containerd
+      mount: /run/containerd
+      size: 10
+      wwn: 300000c0e1a1eead
+      fs_type: xfs
+      label: CONRUN
+    - name: kubelet
+      mount: /var/lib/kubelet
+      size: 10
+      wwn: 300000000c0be1e1
+      fs_type: xfs
+      label: K8SLET
+  etcd:
+    - name: etcd
+      mount: /var/lib/etcd
+      size: 32
+      wwn: 300000000000e1cd
+      fs_type: xfs
+      label: ETCDK8S
+  worker:
+    - name: root
+      mount: /
+      size: 21
+      wwn: 300000000000b001
+      use_base_volume: true
+      fs_type: xfs
+      label: root
+    - name: containerd
+      mount: /var/lib/containerd
+      size: 10
+      wwn: 3000000000a1eead
+      fs_type: xfs
+      label: CONLIB
+    - name: run-containerd
+      mount: /run/containerd
+      size: 10
+      wwn: 300000c0e1a1eead
+      fs_type: xfs
+      label: CONRUN
+    - name: kubelet
+      mount: /var/lib/kubelet
+      size: 10
+      wwn: 300000000c0be1e1
+      fs_type: xfs
+      label: K8SLET
+
+node_defaults:
+  vcpu: 2
+  memory: 4096
+  interfaces:
+  - enp42s0
+  storage_pool_prefix: /var/lib/libvirt
+  base_volume:
+    arch: x86_64
+    format: qcow2
+    name: kubernetes-vm
+    size: 20
+    uri: /vms/images
+  ssh_keys: []
+
+hypervisors:
+  h001:
+    vms:
+      v001:
+        roles:
+        - master
+        - etcd
+      v002:
+        roles:
+        - worker
+      v003:
+        roles:
+        - worker

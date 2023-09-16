@@ -21,7 +21,11 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-interfaces  = ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
-libvirt_uri = "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519"
-volume_uri  = "http://bootserver/nexus/repository/os-images/kubernetes-vm"
-volume_arch = "x86_64"
+terraform {
+  required_providers {
+    libvirt = {
+      source  = "dmacvicar/libvirt"
+      version = "0.7.1"
+    }
+  }
+}
