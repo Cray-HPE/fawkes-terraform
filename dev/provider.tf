@@ -13,7 +13,7 @@ provider "libvirt" {
 }
 
 module "h001_pool" {
-  source = "./modules/storage_pool"
+  source = "../modules/storage_pool"
   name = "h001_images"
   providers = {
     libvirt = libvirt.h001
@@ -21,7 +21,7 @@ module "h001_pool" {
 }
 
 module "h001_worker" {
-  source        = "./modules/kubernetes"
+  source        = "../modules/kubernetes"
   name       = "k8s-vm-worker-h001"
   pool          = module.h001_pool.pool
   interfaces    = ["eth0"]
@@ -32,7 +32,7 @@ module "h001_worker" {
   }
 }
 module "h001_master" {
-  source        = "./modules/kubernetes"
+  source        = "../modules/kubernetes"
   name       = "k8s-vm-master-h001"
   pool          = module.h001_pool.pool
   interfaces    = ["eth0"]

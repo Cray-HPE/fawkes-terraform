@@ -31,55 +31,38 @@ terraform {
 }
 
 provider "libvirt" {
-  alias = "host-01"
-  uri = "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519"
+  uri = "qemu:///system"
 }
 
-module "kubernetes-worker-01" {
-  source        = "modules/kubernetes_old"
-  vm_name       = "k8s-vm-worker"
-  pool          = "kubernetes-vm"
-  interfaces    = var.interfaces
-  volume_uri    = var.volume_uri
-  volume_format = var.volume_format
-  system_volume = 100
-  providers = {
-    libvirt = libvirt.host-01
+resource "libvirt_domain" "main" {
+  name       = var.vm_name
+  memory     = var.memory
+  vcpu       = var.vcpu
+  autostart  = true
+  qemu_agent = true
+
+  cloudinit = libvirt_cloudinit_disk.common-init.id
+
+  dynamic "network_interface" {
+    for_each = var.interfaces
+    content {
+      macvtap = network_interface.value
+    }
   }
-}
 
-provider "libvirt" {
-  alias = "host-02"
-  uri = "qemu+ssh://root@ncn-h002.mtl/system?keyfile=/root/.ssh/id_ed25519"
-}
-
-module "kubernetes-worker-02" {
-  source        = "modules/kubernetes_old"
-  vm_name       = "k8s-vm-worker"
-  pool          = "kubernetes-vm"
-  interfaces    = var.interfaces
-  volume_uri    = var.volume_uri
-  volume_format = var.volume_format
-  system_volume = 100
-  providers = {
-    libvirt = libvirt.host-02
+  disk {
+    volume_id = libvirt_volume.volume.id
   }
-}
 
-provider "libvirt" {
-  alias = "host-03"
-  uri = "qemu+ssh://root@ncn-h003.mtl/system?keyfile=/root/.ssh/id_ed25519"
-}
+  console {
+    type        = "pty"
+    target_type = "serial"
+    target_port = "0"
+  }
 
-module "kubernetes-worker-03" {
-  source        = "modules/kubernetes_old"
-  vm_name       = "k8s-vm-worker"
-  pool          = "kubernetes-vm"
-  interfaces    = var.interfaces
-  volume_uri    = var.volume_uri
-  volume_format = var.volume_format
-  system_volume = 100
-  providers = {
-    libvirt = libvirt.host-03
+  graphics {
+    type        = "spice"
+    listen_type = "address"
+    autoport    = true
   }
 }

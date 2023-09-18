@@ -1,10 +1,10 @@
 locals {
   nodes = {
     h001 = {
-      uri = "qemu:///system"
+      uri = "qemu:///system",
+      interfaces = ["eth0"]
     },
   }
-  interfaces = "eth0"
 }
 generate "provider" {
   path      = "provider.tf"
@@ -27,7 +27,7 @@ provider "libvirt" {
 
 %{ for node_name, node_attrs in local.nodes ~}
 module "${node_name}_pool" {
-  source = "./modules/storage_pool"
+  source = "../modules/storage_pool"
   name = "${node_name}_images"
   providers = {
     libvirt = libvirt.${node_name}
@@ -37,7 +37,7 @@ module "${node_name}_pool" {
 
 %{ for node_name, node_attrs in local.nodes ~}
 module "${node_name}_worker" {
-  source        = "./modules/kubernetes"
+  source        = "../modules/kubernetes"
   name       = "k8s-vm-worker-${node_name}"
   pool          = module.${node_name}_pool.pool
   interfaces    = ["eth0"]
@@ -48,7 +48,7 @@ module "${node_name}_worker" {
   }
 }
 module "${node_name}_master" {
-  source        = "./modules/kubernetes"
+  source        = "../modules/kubernetes"
   name       = "k8s-vm-master-${node_name}"
   pool          = module.${node_name}_pool.pool
   interfaces    = ["eth0"]
