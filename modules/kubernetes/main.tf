@@ -7,61 +7,20 @@ terraform {
   }
 }
 
-variable "project_name" {
-  type = string
-  default = "myproject"
-}
-
-variable "name" {
-  type = string
-  default = "myvm"
-}
-
-variable "vcpu" {
-  type = string
-  default = "1"
-}
-
-variable "memory" {
-  type = string
-  default = "1024"
-}
-
-variable "size" {
-  type = string
-  default = "100"
-}
-
-variable "pool" {
-  type = string
-}
-
-variable "interfaces" {
-  type = list(string)
-  default = ["eth0"]
-}
-
-variable "source_image" {
-  type    = string
-  default = "/vms/images/kubernetes-vm-x86_64.qcow2"
-}
-
 # Base OS image
 resource "libvirt_volume" "baseosimage" {
-  name   = "${var.project_name}_base_os_image"
+  name   = "${var.name}_base_os_image"
   source = var.source_image
   pool   = var.pool
-#  depends_on = [var.pool]
 }
 
 # Create a virtual disk per host based on the Base OS Image
-resource "libvirt_volume" "qcow2_volume" {
+resource "libvirt_volume" "volume" {
   name           = "${var.name}.qcow2"
   base_volume_id = libvirt_volume.baseosimage.id
   pool           = var.pool
   format         = "qcow2"
   size           = pow(1024, 3) * var.size
-  depends_on = [var.pool]
 }
 
 
@@ -79,10 +38,14 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 }
 
 
-resource "libvirt_domain" "kubernetes_vm" {
+resource "libvirt_domain" "vm" {
   name   = var.name
   memory = var.memory
   vcpu   = var.vcpu
+  autostart = true
+  qemu_agent = true
+
+  cloudinit = libvirt_cloudinit_disk.commoninit.id
 
   dynamic "network_interface" {
     for_each = var.interfaces
@@ -92,13 +55,28 @@ resource "libvirt_domain" "kubernetes_vm" {
   }
 
   disk {
-    volume_id = libvirt_volume.qcow2_volume.id
+    volume_id = libvirt_volume.volume.id
   }
 
-  cloudinit = libvirt_cloudinit_disk.commoninit.id
+  console {
+    type        = "pty"
+    target_type = "serial"
+    target_port = "0"
+  }
+
+  graphics {
+    type        = "spice"
+    listen_type = "address"
+    autoport    = true
+  }
+
 }
 
 # Output results to console
 output "hostnames" {
-  value = libvirt_domain.kubernetes_vm.*
+  value = libvirt_domain.vm.*
+}
+
+output "ip" {
+  value = libvirt_domain.vm.network_interface
 }
