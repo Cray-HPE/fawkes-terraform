@@ -1,0 +1,17 @@
+{ 
+  "h001" : {
+    "uri" : "qemu:///system",
+    "interfaces" : ["eth0","eth1"],
+    "type" : "master"
+  },
+  "h002" : {
+    "uri" : "qemu:///system",
+    "interfaces" : ["eth0"],
+    "type" : "worker"
+  },
+  "h003" : {
+    "uri" : "qemu:///system",
+    "interfaces" : ["eth0"],
+    "type" : "worker"
+  }
+}
