@@ -31,3 +31,8 @@ variable "source_image" {
   type    = string
   default = "/vms/images/kubernetes-vm-x86_64.qcow2"
 }
+
+variable "role" {
+  type = string
+  default = "worker"
+}
