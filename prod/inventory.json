@@ -1,17 +1,36 @@
-{ 
-  "h001" : {
-    "uri" : "qemu:///system",
-    "interfaces" : ["eth0","eth1"],
-    "type" : "master"
+{
+  "globals" : {
+
   },
-  "h002" : {
-    "uri" : "qemu:///system",
-    "interfaces" : ["eth0"],
-    "type" : "worker"
+  "node_defaults" : {
+    "source_image": "/vms/images/kubernetes-vm-x86_64.qcow2"
   },
-  "h003" : {
-    "uri" : "qemu:///system",
-    "interfaces" : ["eth0"],
-    "type" : "worker"
+  "nodes" : { 
+    "h001" : {
+      "uri" : "qemu:///system",
+      "interfaces" : ["eth0","eth1"],
+      "role" : "master",
+      "source_image": "/vms/images/kubernetes-vm-x86_64-V2.qcow2"
+    },
+    "h002" : {
+      "uri" : "qemu:///system2",
+      "interfaces" : ["eth0"],
+      "role" : "worker"
+    },
+    "h003" : {
+      "uri" : "qemu:///system3",
+      "interfaces" : ["eth0"],
+      "role" : "worker"
+    },
+    "h004" : {
+      "uri" : "qemu:///system",
+      "interfaces" : ["eth0","eth1"],
+      "role" : "master"
+    },
+    "h005" : {
+      "uri" : "qemu:///system",
+      "interfaces" : ["eth0","eth1"],
+      "role" : "worker"
+    }
   }
 }
