@@ -4,8 +4,6 @@ locals {
   nodes         = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
   globals       = local.inventory.globals
 }
-#interfaces = ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
-#volume_uri = "http://bootserver/nexus/repository/os-images/kubernetes-vm"
 
 generate "versions" {
   path      = "versions.tf"
