@@ -42,7 +42,7 @@ generate "storage" {
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}_pool" {
-  source = "../modules/storage_pool"
+  source = "github.com:Cray-HPE/fawkes-terraform-modules.git//storage_pool?ref=devtest"
   name = "${node_name}_images"
   providers = {
     libvirt = libvirt.${node_name}
@@ -73,7 +73,7 @@ generate "main" {
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}" {
-  source          = "../modules/kubernetes"
+  source          = "github.com:Cray-HPE/fawkes-terraform-modules.git//kubernetes?ref=devtest"
   name            = "k8s-vm-${node_attrs.role}-${node_name}"
   pool            = module.${node_name}_pool.pool
   source_image    = local.nodes.${node_name}.source_image /// "${node_attrs.source_image}"
