@@ -22,37 +22,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 locals {
-  inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
-  node_defaults = local.inventory.node_defaults
-}
-
-remote_state {
-  backend = "local"
-  generate = {
-    path      = "backend.tf"
-    if_exists = "overwrite"
-  }
-  config = {
-    path = "./terraform.tfstate"
-  }
-}
-
-generate "provider" {
-  path      = "providers.tf"
-  if_exists = "overwrite_terragrunt"
-  contents  = <<EOF
-
-# Need a default provider, otherwise "missing uri" errors will be thrown.
-provider "libvirt" {
-  uri = "qemu:///system"
-}
-
-%{for node_name, node_attrs in local.inventory.nodes~}
-provider "libvirt" {
-  alias = "${node_name}"
-  uri   = "qemu+ssh://${local.node_defaults.user.name}@${node_attrs.hostname}/system?keyfile=${local.node_defaults.user.keyfile}"
-}
-
-%{endfor~}
-EOF
+  env         = "prod"
+  inventory   = jsondecode(file("inventory.json"))
+  interfaces  = ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
+  volume_arch = "x86_64"
+  volume_uri  = "http://bootserver/nexus/repository/fawkes-images/kubernetes-vm"
+  volume_size = 100
 }

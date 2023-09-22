@@ -1,6 +1,7 @@
 # Local .terraform directories
 **/.terraform/*
 
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
@@ -27,4 +28,10 @@ override.tf.json
 terraform.rc
 
 # Ignore generated terragrunt files.
+backend.tf
 provider.tf
+
+# Ignore debug and cache.
+terragrunt-debug.tfvars.json
+terragrunt_rendered.json
+.terragrunt-cache/

@@ -21,38 +21,49 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-locals {
-  inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
-  node_defaults = local.inventory.node_defaults
+include "root" {
+  path = find_in_parent_folders()
 }
 
-remote_state {
-  backend = "local"
-  generate = {
-    path      = "backend.tf"
-    if_exists = "overwrite"
-  }
-  config = {
-    path = "./terraform.tfstate"
+include "env" {
+  path   = "${get_terragrunt_dir()}/../../_env/kubernetes.hcl"
+  expose = true
+}
+
+terraform {
+  source = "${include.env.locals.source_url}"
+}
+
+dependency "storage_pool" {
+  config_path = "../storage_pool"
+  mock_outputs = {
+    pool = "kubernetes_pool"
   }
 }
 
-generate "provider" {
-  path      = "providers.tf"
+inputs = {
+  pool = dependency.storage_pool.outputs.pool
+}
+
+generate "modules" {
+  path      = "modules.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
-
-# Need a default provider, otherwise "missing uri" errors will be thrown.
-provider "libvirt" {
-  uri = "qemu:///system"
+%{for node_name, node_attrs in include.env.locals.env_vars.locals.inventory.nodes~}
+%{if node_attrs.role == "worker"~}
+module "kubernetes-worker-${node_name}" {
+  name          = "kubernetes-worker-${node_name}"
+  source        = "${include.env.locals.source_url}"
+  pool          = "kubernetes-worker-${node_name}"
+  interfaces    = ${jsonencode(include.env.locals.env_vars.locals.interfaces)}
+  volume_arch   = "${include.env.locals.env_vars.locals.volume_arch}"
+  volume_uri    = "${include.env.locals.env_vars.locals.volume_uri}"
+  volume_size   = ${include.env.locals.env_vars.locals.volume_size}
+  providers = {
+    libvirt = libvirt.${node_name}
+  }
 }
-
-%{for node_name, node_attrs in local.inventory.nodes~}
-provider "libvirt" {
-  alias = "${node_name}"
-  uri   = "qemu+ssh://${local.node_defaults.user.name}@${node_attrs.hostname}/system?keyfile=${local.node_defaults.user.keyfile}"
-}
-
+%{endif~}
 %{endfor~}
 EOF
 }

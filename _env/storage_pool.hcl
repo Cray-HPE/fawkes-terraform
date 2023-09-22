@@ -22,37 +22,8 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 locals {
-  inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
-  node_defaults = local.inventory.node_defaults
-}
+  env_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  env_name = local.env_vars.locals.env
 
-remote_state {
-  backend = "local"
-  generate = {
-    path      = "backend.tf"
-    if_exists = "overwrite"
-  }
-  config = {
-    path = "./terraform.tfstate"
-  }
-}
-
-generate "provider" {
-  path      = "providers.tf"
-  if_exists = "overwrite_terragrunt"
-  contents  = <<EOF
-
-# Need a default provider, otherwise "missing uri" errors will be thrown.
-provider "libvirt" {
-  uri = "qemu:///system"
-}
-
-%{for node_name, node_attrs in local.inventory.nodes~}
-provider "libvirt" {
-  alias = "${node_name}"
-  uri   = "qemu+ssh://${local.node_defaults.user.name}@${node_attrs.hostname}/system?keyfile=${local.node_defaults.user.keyfile}"
-}
-
-%{endfor~}
-EOF
+  source_url = "github.com/Cray-HPE/fawkes-terraform-modules.git//storage_pool?ref=main"
 }
