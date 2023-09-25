@@ -1,0 +1,24 @@
+{
+  "globals" : {
+
+  },
+  "node_defaults" : {
+    "source_image": "/vms/images/kubernetes-vm-x86_64.qcow2",
+    "interfaces": ["eth0"],
+    "volume_arch": "x86_64",
+    "volume_format": "qcow2",
+    "volume_uri": "/vms/images/",
+    "uri": "qemu:///system"
+  },
+  "nodes" : {
+    "h001" : {
+      "role" : "master"
+    },
+    "h002" : {
+      "role" : "master"
+    },
+    "h003" : {
+      "role" : "worker"
+    }
+  }
+}

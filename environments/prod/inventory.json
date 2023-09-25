@@ -9,16 +9,15 @@
   "nodes" : {
     "h001" : {
       "uri" : "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "master",
-      "source_image": "/vms/images/kubernetes-vm-x86_64.qcow2"
+      "role" : "master"
     },
     "h002" : {
       "uri" : "qemu+ssh://root@ncn-h002/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "worker"
+      "role" : "master"
     },
     "h003" : {
       "uri" : "qemu+ssh://root@ncn-h003/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "worker"
+      "role" : "master"
     }
   }
 }
