@@ -8,6 +8,7 @@
     "volume_arch": "x86_64",
     "volume_format": "qcow2",
     "volume_uri": "/vms/images/",
+    "volume_size": "100",
     "uri": "qemu:///system"
   },
   "nodes" : {
