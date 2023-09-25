@@ -4,7 +4,11 @@
   },
   "node_defaults" : {
     "source_image": "/vms/images/kubernetes-vm-x86_64.qcow2",
-    "interfaces": ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"]
+    "interfaces": ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"],
+    "volume_arch": "x86_64",
+    "volume_format": "qcow2",
+    "volume_uri": "/vms/images/",
+    "volume_size": "100"
   },
   "nodes" : {
     "h001" : {
