@@ -23,7 +23,7 @@
 #
 locals {
   inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
-  node_defaults = local.inventory.node_defaults
+  nodes         = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
   env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 }
 
@@ -43,11 +43,11 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 
-%{for node_name, node_attrs in local.inventory.nodes~}
+%{for node_name, node_attrs in local.nodes~}
 %{if lookup(node_attrs, "hostname", "") != ""~}
 provider "libvirt" {
   alias = "${node_name}"
-  uri   = "qemu+ssh://${local.node_defaults.user.name}@${node_attrs.hostname}/system?keyfile=${local.node_defaults.user.keyfile}"
+  uri   = "qemu+ssh://${node_attrs.user.name}@${node_attrs.hostname}/system?keyfile=${node_attrs.user.keyfile}"
 }
 %{else}
 provider "libvirt" {
