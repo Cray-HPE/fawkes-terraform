@@ -3,22 +3,16 @@
 
   },
   "node_defaults" : {
-    "user": {
-      "name": "root",
-      "keyfile": "/root/.ssh/id_ed25519"
-    }
+
   },
   "nodes" : {
-    "ncn-h001" : {
-      "hostname": "hypervisor",
+    "h001" : {
       "role" : "master"
     },
-    "ncn-h002" : {
-      "hostname": "ncn-h002",
+    "h002" : {
       "role" : "worker"
     },
-    "ncn-h003" : {
-      "hostname": "ncn-h003",
+    "h003" : {
       "role" : "worker"
     }
   }

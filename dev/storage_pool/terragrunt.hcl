@@ -38,7 +38,6 @@ generate "modules" {
   path      = "modules.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
-
 %{for node_name, node_attrs in include.env.locals.env_vars.locals.inventory.nodes~}
 module "${node_name}_pool" {
   source = "${include.env.locals.source_url}"
