@@ -4,7 +4,6 @@
   },
   "node_defaults" : {
     "interfaces": ["eth0"],
-    "source_image": "kubernetes-vm",
     "volume_arch": "x86_64",
     "volume_format": "qcow2",
     "volume_uri": "/vms/images/kubernetes-vm",

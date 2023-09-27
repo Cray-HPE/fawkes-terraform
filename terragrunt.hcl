@@ -3,7 +3,6 @@ locals {
   node_defaults = local.inventory.node_defaults
   nodes         = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
   globals       = local.inventory.globals
-  source_url    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git"
 }
 
 generate "versions" {
@@ -60,9 +59,9 @@ module "${node_name}-kubernetes-${node_attrs.sub_role}" {
   name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
-  source_image  = local.nodes.${node_name}.source_image
   sub_role      = local.nodes.${node_name}.sub_role
   volume_size   = local.nodes.${node_name}.volume_size
+  volume_name   = local.nodes.${node_name}.volume_name
   volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch
 %{if strcontains(node_attrs.uri, "hypervisor.local/system") || strcontains(node_attrs.uri, "hypervisor/system") ~}
