@@ -10,7 +10,7 @@ terraform {
 # Base OS image
 resource "libvirt_volume" "base-volume" {
   name   = "${var.name}-base.${var.volume_format}"
-  source = "${var.volume_uri}-${var.volume_arch}.${var.volume_format}"
+  source = "${var.volume_uri}/${var.volume_name}-${var.volume_arch}.${var.volume_format}"
   pool   = var.pool
   format = var.volume_format
 }
