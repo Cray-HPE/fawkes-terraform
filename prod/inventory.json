@@ -12,7 +12,7 @@
   },
   "nodes" : {
     "ncn-h001" : {
-      "uri" : "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519",
+      "uri" : "qemu+ssh://root@hypervisor.local/system?keyfile=/root/.ssh/id_ed25519",
       "sub_role" : "master"
     },
     "ncn-h002" : {

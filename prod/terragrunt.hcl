@@ -8,5 +8,5 @@ include {
 }
 
 terraform {
-  source = include.locals.source_url
+  source = "${include.locals.source_url}?ref=devtest"
 }

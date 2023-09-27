@@ -56,7 +56,7 @@ generate "main" {
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}-kubernetes-${node_attrs.sub_role}" {
-  source        = "${local.source_url}//kubernetes?ref=devtest"
+  source        = "./kubernetes"
   name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
@@ -65,14 +65,18 @@ module "${node_name}-kubernetes-${node_attrs.sub_role}" {
   volume_size   = local.nodes.${node_name}.volume_size
   volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch
+%{if strcontains(node_attrs.uri, "hypervisor.local/system") || strcontains(node_attrs.uri, "hypervisor/system") ~}
+  volume_uri    = "${ replace(node_attrs.volume_uri, "bootserver", "management-vm.local") }"
+%{else~}
   volume_uri    = local.nodes.${node_name}.volume_uri
+%{endif~}
   providers     = {
     libvirt = libvirt.${node_name}
   }
 }
 
 module "${node_name}-storage-pool" {
-  source    = "${local.source_url}//storage_pool?ref=devtest"
+  source    = "./storage_pool"
   name      = "${node_name}-storage-pool"
   providers = {
     libvirt = libvirt.${node_name}
