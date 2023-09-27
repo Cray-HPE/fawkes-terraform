@@ -13,15 +13,15 @@
   "nodes" : {
     "ncn-h001" : {
       "uri" : "qemu+ssh://root@hypervisor/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "master"
+      "sub_role" : "master"
     },
     "ncn-h002" : {
       "uri" : "qemu+ssh://root@ncn-h002/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "worker"
+      "sub_role" : "worker"
     },
     "ncn-h003" : {
       "uri" : "qemu+ssh://root@ncn-h003/system?keyfile=/root/.ssh/id_ed25519",
-      "role" : "worker"
+      "sub_role" : "worker"
     }
   }
 }

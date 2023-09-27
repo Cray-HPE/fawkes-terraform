@@ -55,13 +55,13 @@ generate "main" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
-module "${node_name}-kubernetes-${node_attrs.role}" {
+module "${node_name}-kubernetes-${node_attrs.sub_rule}" {
   source        = "${local.source_url}//kubernetes?ref=devtest"
-  name          = "kubernetes-${node_attrs.role}-${node_name}"
+  name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
   source_image  = local.nodes.${node_name}.source_image
-  sub_role      = local.nodes.${node_name}.role
+  sub_role      = local.nodes.${node_name}.sub_role
   volume_size   = local.nodes.${node_name}.volume_size
   volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch

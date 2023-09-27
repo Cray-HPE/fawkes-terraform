@@ -13,13 +13,13 @@
   },
   "nodes" : {
     "h001" : {
-      "role" : "master"
+      "sub_role" : "master"
     },
     "h002" : {
-      "role" : "worker"
+      "sub_role" : "worker"
     },
     "h003" : {
-      "role" : "worker"
+      "sub_role" : "worker"
     }
   }
 }
