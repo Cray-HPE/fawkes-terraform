@@ -61,6 +61,7 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
   source_image  = local.nodes.${node_name}.source_image
+  sub_role      = local.nodes.${node_name}.role
   volume_size   = local.nodes.${node_name}.volume_size
   volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch
