@@ -22,9 +22,9 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 locals {
-  inventory = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
-  nodes     = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
-  env_vars  = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
+  nodes         = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
+  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 }
 
 remote_state {
