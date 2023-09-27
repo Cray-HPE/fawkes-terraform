@@ -54,10 +54,12 @@ generate "main" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
-module "${node_name}" {
-  source        = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//kubernetes?ref=devtest"
+module "${node_name}-kubernetes-${node_attrs.role}" {
+  source        = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//kubernetes?ref=rusty"
   name          = "kubernetes-${node_attrs.role}-${node_name}"
-  pool          = module.${node_name}_pool.pool
+  interfaces    = ${jsonencode("${node_attrs}".interfaces)}
+  pool          = module.${node_name}-storage-pool.pool
+  source_image  = local.nodes.${node_name}.source_image
   volume_size   = local.nodes.${node_name}.volume_size
   volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch
@@ -67,9 +69,9 @@ module "${node_name}" {
   }
 }
 
-module "${node_name}_pool" {
-  source    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//storage_pool?ref=devtest"
-  name      = "${node_name}_images"
+module "${node_name}-storage-pool" {
+  source    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//storage_pool?ref=rusty"
+  name      = "${node_name}-storage-pool"
   providers = {
     libvirt = libvirt.${node_name}
   }
