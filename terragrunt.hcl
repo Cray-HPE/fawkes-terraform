@@ -24,7 +24,6 @@
 locals {
   inventory     = jsondecode(file("${get_terragrunt_dir()}/../inventory.json"))
   node_defaults = local.inventory.node_defaults
-  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 }
 
 remote_state {
@@ -43,18 +42,16 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 
+# Need a default provider, otherwise "missing uri" errors will be thrown.
+provider "libvirt" {
+  uri = "qemu:///system"
+}
+
 %{for node_name, node_attrs in local.inventory.nodes~}
-%{if lookup(node_attrs, "hostname", "") != ""~}
 provider "libvirt" {
   alias = "${node_name}"
   uri   = "qemu+ssh://${local.node_defaults.user.name}@${node_attrs.hostname}/system?keyfile=${local.node_defaults.user.keyfile}"
 }
-%{else}
-provider "libvirt" {
-  alias = "${node_name}"
-  uri   = "qemu:///system"
-}
-%{endif~}
 
 %{endfor~}
 EOF

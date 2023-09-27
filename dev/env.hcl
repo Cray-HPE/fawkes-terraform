@@ -27,5 +27,5 @@ locals {
   interfaces  = ["eth0"]
   volume_arch = "x86_64"
   volume_uri  = "/vms/images/kubernetes-vm"
-  volume_size = 20
+  volume_size = 10
 }
