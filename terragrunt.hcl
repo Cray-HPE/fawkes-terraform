@@ -55,7 +55,7 @@ generate "main" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
-module "${node_name}-kubernetes-${node_attrs.sub_rule}" {
+module "${node_name}-kubernetes-${node_attrs.sub_role}" {
   source        = "${local.source_url}//kubernetes?ref=devtest"
   name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
