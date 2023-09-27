@@ -42,6 +42,12 @@ variable "volume_size" {
   default     = 20
 }
 
+variable "volume_name" {
+  description = "Base name of volume"
+  type        = string
+  default     = "kubernetes-vm"
+}
+
 variable "name" {
   description = "Name of the VM"
   type        = string
@@ -78,7 +84,7 @@ variable "libvirt_uri" {
   default = "qemu:///system"
 }
 
-variable "master" {
-  type = bool
-  default = true
+variable "sub_role" {
+  description = "The sub-role (master or worker) that this module is playing."
+  type        = string
 }

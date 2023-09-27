@@ -8,6 +8,7 @@
     "volume_format": "qcow2",
     "volume_uri": "/vms/images/kubernetes-vm",
     "volume_size": "100",
+    "volume_name": "kubernetes-vm",
     "uri": "qemu:///system"
   },
   "nodes" : {

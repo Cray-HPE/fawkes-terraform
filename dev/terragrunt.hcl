@@ -7,5 +7,5 @@ include {
 }
 
 terraform {
-  source = "../modules/noop"
+  source = "${get_parent_terragrunt_dir()}/modules/"
 }

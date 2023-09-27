@@ -8,5 +8,5 @@ include {
 }
 
 terraform {
-  source = "${include.locals.source_url}?ref=devtest"
+  source = "${get_parent_terragrunt_dir()}/modules/"
 }

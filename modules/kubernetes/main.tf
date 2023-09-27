@@ -26,7 +26,7 @@ resource "libvirt_volume" "volume" {
 
 # Create a virtual disk for etcd
 resource "libvirt_volume" "etcd" {
-  count  = var.master ? 1 : 0
+  count  = var.sub_role == "master" ? 1 : 0
   name   = "${var.name}_etcd.qcow2"
   pool   = var.pool /// Put this in different pool
   format = "qcow2"
@@ -94,7 +94,7 @@ resource "libvirt_domain" "vm" {
   }
 
   dynamic "disk" {
-    for_each = var.master ? [libvirt_volume.etcd[0].id] : []
+    for_each = var.sub_role == "master" ? [libvirt_volume.etcd[0].id] : []
     content {
       volume_id = disk.value
       scsi = true
