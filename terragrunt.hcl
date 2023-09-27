@@ -1,7 +1,7 @@
 locals {
   inventory     = jsondecode(file("${get_terragrunt_dir()}/inventory.json"))
   node_defaults = local.inventory.node_defaults
-  nodes         = {for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v)}
+  nodes         = { for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v) }
   globals       = local.inventory.globals
   source_url    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git"
 }
