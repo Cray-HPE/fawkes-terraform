@@ -3,6 +3,7 @@ locals {
   node_defaults = local.inventory.node_defaults
   nodes         = {for k, v in local.inventory.nodes : k => merge(local.inventory.node_defaults, v)}
   globals       = local.inventory.globals
+  source_url    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git"
 }
 
 generate "versions" {
@@ -55,7 +56,7 @@ generate "main" {
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}-kubernetes-${node_attrs.role}" {
-  source        = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//kubernetes?ref=rusty"
+  source        = "${local.source_url}//kubernetes?ref=devtest"
   name          = "kubernetes-${node_attrs.role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
@@ -70,7 +71,7 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
 }
 
 module "${node_name}-storage-pool" {
-  source    = "git::https://github.com/Cray-HPE/fawkes-terraform-modules.git//storage_pool?ref=rusty"
+  source    = "${local.source_url}//storage_pool?ref=devtest"
   name      = "${node_name}-storage-pool"
   providers = {
     libvirt = libvirt.${node_name}
