@@ -67,7 +67,7 @@ generate "main" {
   contents  = <<EOF
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}-kubernetes-${node_attrs.sub_role}" {
-  source        = "./kubernetes"
+  source        = "${get_parent_terragrunt_dir()}/modules/kubernetes"
   name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
@@ -87,7 +87,7 @@ module "${node_name}-kubernetes-${node_attrs.sub_role}" {
 }
 
 module "${node_name}-storage-pool" {
-  source    = "./storage_pool"
+  source    = "${get_parent_terragrunt_dir()}/modules/storage_pool"
   name      = "${node_name}-storage-pool"
   providers = {
     libvirt = libvirt.${node_name}
