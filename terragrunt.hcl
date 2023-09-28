@@ -68,16 +68,18 @@ generate "main" {
 %{for node_name, node_attrs in local.nodes~}
 module "${node_name}-kubernetes-${node_attrs.sub_role}" {
   source        = "${get_parent_terragrunt_dir()}/modules/kubernetes"
+  cpus          = local.nodes.${node_name}.vcpu
+  memory        = local.nodes.${node_name}.memory
   name          = "kubernetes-${node_attrs.sub_role}-${node_name}"
   interfaces    = ${jsonencode("${node_attrs}".interfaces)}
   pool          = module.${node_name}-storage-pool.pool
-  sub_role      = local.nodes.${node_name}.sub_role
-  volume_size   = local.nodes.${node_name}.volume_size
-  volume_name   = local.nodes.${node_name}.volume_name
-  volume_format = local.nodes.${node_name}.volume_format
   volume_arch   = local.nodes.${node_name}.volume_arch
-%{if strcontains(node_attrs.uri, "hypervisor.local/system") || strcontains(node_attrs.uri, "hypervisor/system") ~}
-  volume_uri    = "${ replace(node_attrs.volume_uri, "bootserver", "management-vm.local") }"
+  sub_role      = local.nodes.${node_name}.sub_role
+  volume_format = local.nodes.${node_name}.volume_format
+  volume_name   = local.nodes.${node_name}.volume_name
+  volume_size   = local.nodes.${node_name}.volume_size
+%{if strcontains(node_attrs.uri, "hypervisor.local/system") || strcontains(node_attrs.uri, "hypervisor/system")~}
+  volume_uri    = "${replace(node_attrs.volume_uri, "bootserver", "management-vm.local")}"
 %{else~}
   volume_uri    = local.nodes.${node_name}.volume_uri
 %{endif~}

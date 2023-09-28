@@ -3,6 +3,8 @@
 
   },
   "node_defaults" : {
+    "cpus": 4,
+    "memory": 16384,
     "interfaces": ["bond0.nmn0", "bond0.hmn0", "bond0.cmn0"],
     "volume_arch": "x86_64",
     "volume_format": "qcow2",

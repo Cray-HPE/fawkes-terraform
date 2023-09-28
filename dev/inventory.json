@@ -3,6 +3,8 @@
 
   },
   "node_defaults" : {
+    "cpus": 2,
+    "memory": 4096,
     "interfaces": ["eth0"],
     "volume_arch": "x86_64",
     "volume_format": "qcow2",

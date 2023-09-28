@@ -24,18 +24,16 @@ resource "libvirt_volume" "volume" {
   size           = pow(1024, 3) * var.volume_size
 }
 
-# Create a virtual disk for etcd
 resource "libvirt_volume" "etcd" {
   count  = var.sub_role == "master" ? 1 : 0
-  name   = "${var.name}_etcd.qcow2"
+  name   = "${var.name}_etcd.${var.volume_format}"
   pool   = var.pool /// Put this in different pool
-  format = "qcow2"
+  format = var.volume_format
   size   = pow(1024, 3) * 32
 }
 
-# Create a virtual disk for /var/lib/containerd
-resource "libvirt_volume" "storage" {
-  name   = "${var.name}_storage.qcow2"
+resource "libvirt_volume" "lib-containerd" {
+  name   = "${var.name}_storage.${var.volume_format}"
   pool   = var.pool /// Put this in different pool
   format = "qcow2"
   size   = pow(1024, 3) * 100
@@ -48,7 +46,7 @@ data "template_file" "user_data" {
 data "template_file" "meta_data" {
   template = file("${path.module}/templates/meta-data.yml")
   vars     = {
-    hostname   = var.name
+    hostname = var.name
   }
 }
 
@@ -57,8 +55,8 @@ data "template_file" "network_config" {
 }
 
 resource "libvirt_cloudinit_disk" "commoninit" {
-  name      = "${var.name}_init.iso"
-  pool = var.pool
+  name           = "${var.name}_init.iso"
+  pool           = var.pool
   meta_data      = data.template_file.meta_data.rendered
   network_config = data.template_file.network_config.rendered
   user_data      = data.template_file.user_data.rendered
@@ -66,10 +64,10 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 
 
 resource "libvirt_domain" "vm" {
-  name   = var.name
-  memory = var.memory
-  vcpu   = var.vcpu
-  autostart = true
+  name       = var.name
+  memory     = var.memory
+  vcpu       = var.vcpu
+  autostart  = true
   qemu_agent = true
 
   cloudinit = libvirt_cloudinit_disk.commoninit.id
@@ -83,22 +81,19 @@ resource "libvirt_domain" "vm" {
 
   disk {
     volume_id = libvirt_volume.volume.id
-    scsi = true
-    wwn = "05abcd285c6230c1"
+    scsi      = true
   }
 
   disk {
-    volume_id = libvirt_volume.storage.id
-    scsi = true
-    wwn = "05abcd285c6230c2"
+    volume_id = libvirt_volume.lib-containerd.id
+    scsi      = true
   }
 
   dynamic "disk" {
     for_each = var.sub_role == "master" ? [libvirt_volume.etcd[0].id] : []
     content {
       volume_id = disk.value
-      scsi = true
-      wwn = "05abcd285c6230c3"
+      scsi      = true
     }
   }
 

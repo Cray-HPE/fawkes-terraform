@@ -1,4 +1,6 @@
+### OPTIONALS
 variable "name" {
-  type = string
-  default = "mypool"
+  default     = "kubernetes"
+  description = "Name of the pool."
+  type        = string
 }

@@ -21,18 +21,52 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
+### OPTIONALS
+variable "interfaces" {
+  default     = ["eth0"]
+  description = "List of host interfaces that will the VM will receive a macvtap interface for"
+  type        = list(string)
+}
+
+variable "memory" {
+  default     = "4096"
+  description = "Memory in MB"
+  type        = string
+}
+
+variable "name" {
+  default     = "kubernetes"
+  description = "Name of the VM"
+  type        = string
+}
+
+variable "pool" {
+  default     = "default"
+  description = "Name of pool for volumes"
+  type        = string
+}
+
+variable "vcpu" {
+  default     = 2
+  description = "Number of vCPUs"
+  type        = number
+}
+
 variable "volume_arch" {
+  default     = "x86_64"
   description = "Architecture of the image"
   type        = string
 }
 
 variable "volume_format" {
+  default     = "qcow2"
   description = "Format of the volume"
   type        = string
 }
 
-variable "volume_uri" {
-  description = "URI to volumes (without the file extension)"
+variable "volume_name" {
+  default     = "kubernetes-vm"
+  description = "URI to volumes (without the file extension or architecture)."
   type        = string
 }
 
@@ -42,49 +76,13 @@ variable "volume_size" {
   default     = 20
 }
 
-variable "volume_name" {
-  description = "Base name of volume"
-  type        = string
-  default     = "kubernetes-vm"
-}
-
-variable "name" {
-  description = "Name of the VM"
-  type        = string
-  default     = "kubernetes"
-}
-
-variable "memory" {
-  description = "Memory in MB"
-  type        = string
-  default     = "4096"
-}
-
-variable "vcpu" {
-  description = "Number of vCPUs"
-  type        = number
-  default     = 2
-}
-
-variable "pool" {
-  description = "Name of pool for volumes"
-  type        = string
-  default     = "default"
-}
-
-variable "interfaces" {
-  description = "List of host interfaces that will the VM will receive a macvtap interface for"
-  type        = list(string)
-  default = ["eth0"]
-}
-
-variable "libvirt_uri" {
-  description = "QEMU System URI"
-  type        = string
-  default = "qemu:///system"
-}
-
+### REQUIRED
 variable "sub_role" {
   description = "The sub-role (master or worker) that this module is playing."
+  type        = string
+}
+
+variable "volume_uri" {
+  description = "URI to volume (without the filename)."
   type        = string
 }
