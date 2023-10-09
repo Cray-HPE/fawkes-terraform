@@ -26,7 +26,7 @@
 
 variable "volumes" {
   description = "List of volumes for the VM"
-  type        = list(map(any))
+  type        = any
 }
 
 ### OPTIONAL SECTION
@@ -92,12 +92,6 @@ variable "environment" {
   description = "Create special resources for development environments"
   type        = string
   default     = "dev"
-}
-
-variable "storage_pool_prefix" {
-  description = "Local path to the storage pool"
-  default     = "/var/lib/libvirt"
-  type        = string
 }
 
 variable "ssh_keys" {

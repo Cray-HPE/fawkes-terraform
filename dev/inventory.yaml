@@ -9,6 +9,11 @@ hypervisor_defaults:
       - 192.168.201.0/24
     dhcp: true
 
+storage_pools_defaults:
+  pool:
+    name: default
+    prefix: /var/lib/libvirt
+
 # this needs to match the VM roles
 volumes_defaults:
   master:
@@ -44,6 +49,9 @@ volumes_defaults:
       wwn: 300000000000e1cd
       fs_type: xfs
       label: ETCDK8S
+      pool:
+        name: etcd
+        prefix: /var/lib/etcd
   worker:
     - name: root
       mount: /

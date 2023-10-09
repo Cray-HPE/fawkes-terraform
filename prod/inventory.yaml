@@ -3,6 +3,11 @@ globals:
 
 hypervisor_defaults: {}
 
+storage_pools_defaults:
+  pool:
+    name: default
+    prefix: /var/lib/libvirt
+
 # This needs to match the roles
 volumes_defaults:
   master:

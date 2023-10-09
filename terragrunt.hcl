@@ -41,7 +41,8 @@ locals {
       ] if try(v.vms, {}) != {}
     ]
   )
-  hypervisors = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, v) }
+  _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [for i in v : merge(local.inventory.storage_pools_defaults, i)] }
+  hypervisors       = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, v) }
   nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
     local.inventory.node_defaults,
     v,
@@ -51,7 +52,7 @@ locals {
         "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
       }
     ) : local.inventory.node_defaults.base_volume },
-    { "volumes" = flatten([for k, v in v.roles : local.inventory.volumes_defaults[v]]) }
+    { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) }
   ) }
   globals = local.inventory.globals
 }
@@ -117,18 +118,19 @@ locals {
           ] if try(v.vms, {}) != {}
     ]
   )
-  hypervisors = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
-  nodes       = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
-                  local.inventory.node_defaults,
-                  v,
-                    { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
-                    local.inventory.node_defaults.base_volume,
-                    {
-                      "uri": replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
-                    }
-                  ) : local.inventory.node_defaults.base_volume},
-                  { "volumes" = flatten([ for k, v in v.roles : local.inventory.volumes_defaults[v] ]) }
-                )}
+  _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [for i in v : merge(local.inventory.storage_pools_defaults, i)] }
+  hypervisors       = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
+  nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
+    local.inventory.node_defaults,
+    v,
+    { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
+      local.inventory.node_defaults.base_volume,
+      {
+        "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
+      }
+    ) : local.inventory.node_defaults.base_volume },
+    { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) }
+  ) }
   globals     = local.inventory.globals
 }
 EOF
@@ -150,7 +152,6 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
 %{if try(local.hypervisors[node_attrs.hv_name].local_network, {}) != {} ~}
   local_networks      = [module.${node_attrs.hv_name}-isolated-network.id]
 %{endif}
-  storage_pool_prefix = local.nodes.${node_name}.storage_pool_prefix
   roles               = local.nodes.${node_name}.roles
   volumes             = local.nodes.${node_name}.volumes
   ssh_keys            = local.nodes.${node_name}.ssh_keys
