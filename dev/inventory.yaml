@@ -84,7 +84,6 @@ node_defaults:
   memory: 4096
   interfaces:
   - enp42s0
-  storage_pool_prefix: /var/lib/libvirt
   base_volume:
     arch: x86_64
     format: qcow2
