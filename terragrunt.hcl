@@ -26,6 +26,7 @@ terragrunt_version_constraint = "<0.52"
 
 locals {
   inventory      = yamldecode(file("${get_terragrunt_dir()}/inventory.yaml"))
+  ssh_keys       = [ for f in fileset("${get_terragrunt_dir()}", "ssh-keys/*.pub") : file(format("${get_terragrunt_dir()}/%s", f)) ]
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten(
     [
@@ -45,6 +46,8 @@ locals {
   hypervisors       = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, v) }
   nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
     local.inventory.node_defaults,
+    # collect the keys from node_defaults and local ssh-keys folder
+    { ssh_keys = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) },
     v,
     { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
       local.inventory.node_defaults.base_volume,
@@ -103,6 +106,7 @@ generate "locals" {
   contents  = <<EOF
 locals {
   inventory      = yamldecode(file("${get_terragrunt_dir()}/inventory.yaml"))
+  ssh_keys       = [ for f in fileset("${get_terragrunt_dir()}", "ssh-keys/*.pub") : file(format("${get_terragrunt_dir()}/%s", f)) ]
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten(
     [
@@ -122,6 +126,8 @@ locals {
   hypervisors       = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
   nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
     local.inventory.node_defaults,
+    # collect the keys from node_defaults and local ssh-keys folder
+    { ssh_keys = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) },
     v,
     { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
       local.inventory.node_defaults.base_volume,
