@@ -24,37 +24,25 @@
 terraform_version_constraint  = "<0.14"
 terragrunt_version_constraint = "<0.52"
 
+# The nodes and hypervisors here are minimal just for code generation
+# The real locals are in the generate block further down
 locals {
   inventory      = yamldecode(file("${get_terragrunt_dir()}/inventory.yaml"))
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
-  _nodes = flatten(
-    [
-      for k, v in local.hypervisors :
-      [
-        for vm, vmv in v.vms : merge(
-          { hv_name : k },
-          { vm_name : vm },
-          { role : try(vmv.roles[0], "undef") },
-          { local_networks : try([v.local_network.name], []) },
-          vmv
-        )
-      ] if try(v.vms, {}) != {}
-    ]
-  )
-  _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [for i in v : merge(local.inventory.storage_pools_defaults, i)] }
-  hypervisors       = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, v) }
-  nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
-    local.inventory.node_defaults,
-    v,
-    { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
-      local.inventory.node_defaults.base_volume,
-      {
-        "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
-      }
-    ) : local.inventory.node_defaults.base_volume },
-    { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) }
-  ) }
-  globals = local.inventory.globals
+  _nodes = flatten([
+    for k, v in local.hypervisors : [
+      for vm, vmv in v.vms : merge(
+        { hv_name : k },
+        { vm_name : vm },
+        { role : try(vmv.roles[0], "undef") },
+        { local_networks : try([v.local_network.name], []) },
+        vmv
+      )
+    ] if try(v.vms, {}) != {}
+  ])
+  hypervisors = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, v) }
+  nodes       = { for k, v in local._nodes : "${v.hv_name}-${v.vm_name}" => merge(local.inventory.node_defaults, v) }
+  globals     = local.inventory.globals
 }
 
 generate "backend" {
@@ -118,8 +106,14 @@ locals {
           ] if try(v.vms, {}) != {}
     ]
   )
-  _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [for i in v : merge(local.inventory.storage_pools_defaults, i)] }
-  hypervisors       = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
+  _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [
+    for i in v : merge(
+      local.inventory.storage_pools_defaults,
+      i,
+      try(i.luks.key, "") != "" ? { "luks" = merge(i.luks, local.luks_keys[i.luks.key]) } : {}
+    )]
+  }
+  hypervisors = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
   nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
     local.inventory.node_defaults,
     v,
@@ -132,6 +126,22 @@ locals {
     { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) }
   ) }
   globals     = local.inventory.globals
+  luks_keys = { for k, v in local.inventory.luks_keys : k => merge(
+    v,
+    { "content" = module.luks_keys[k].key }
+    )
+  }
+}
+EOF
+}
+
+generate "luks_keys" {
+  path      = "luks_keys.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+module "luks_keys" {
+  source = "${get_parent_terragrunt_dir()}/modules/luks_keys"
+  for_each = local.inventory.luks_keys
 }
 EOF
 }

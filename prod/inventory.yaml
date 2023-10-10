@@ -15,6 +15,7 @@ volumes_defaults:
       mount: /
       size: 100
       wwn: 300000000000b001
+      initialize: false
       use_base_volume: true
       fs_type: xfs
       label: root
@@ -22,18 +23,21 @@ volumes_defaults:
       mount: /var/lib/containerd
       size: 100
       wwn: 3000000000a1eead
+      initialize: true
       fs_type: xfs
       label: CONLIB
     - name: run-containerd
       mount: /run/containerd
       size: 100
       wwn: 300000c0e1a1eead
+      initialize: true
       fs_type: xfs
       label: CONRUN
     - name: kubelet
       mount: /var/lib/kubelet
       size: 10
       wwn: 300000000c0be1e1
+      initialize: true
       fs_type: xfs
       label: K8SLET
   etcd:
@@ -41,13 +45,20 @@ volumes_defaults:
       mount: /var/lib/etcd
       size: 32
       wwn: 300000000000e1cd
+      initialize: false
       fs_type: xfs
       label: ETCDK8S
+      pool:
+        name: etcd
+        prefix: /var/lib/etcd
+      luks:
+        key: luks-etcd
   worker:
     - name: root
       mount: /
       size: 100
       wwn: 300000000000b001
+      initialize: false
       use_base_volume: true
       fs_type: xfs
       label: root
@@ -55,18 +66,21 @@ volumes_defaults:
       mount: /var/lib/containerd
       size: 100
       wwn: 3000000000a1eead
+      initialize: true
       fs_type: xfs
       label: CONLIB
     - name: run-containerd
       mount: /run/containerd
       size: 100
       wwn: 300000c0e1a1eead
+      initialize: true
       fs_type: xfs
       label: CONRUN
     - name: kubelet
       mount: /var/lib/kubelet
       size: 10
       wwn: 300000000c0be1e1
+      initialize: true
       fs_type: xfs
       label: K8SLET
 
