@@ -3,6 +3,11 @@ globals:
 
 hypervisor_defaults: {}
 
+storage_pools_defaults:
+  pool:
+    name: default
+    prefix: /var/lib/libvirt
+
 # This needs to match the roles
 volumes_defaults:
   master:
@@ -72,7 +77,6 @@ node_defaults:
     - bond0.nmn0
     - bond0.hmn0
     - bond0.cmn0
-  storage_pool_prefix: /vms/storeA/pools
   base_volume:
     arch: x86_64
     format: qcow2

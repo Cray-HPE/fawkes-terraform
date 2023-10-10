@@ -24,19 +24,35 @@
 
 locals {
   volumes = { for k, v in var.volumes : "${k}-${v.name}" => v }
+  pools  = { for v in var.volumes : (v.pool.name) => v.pool.prefix... }
+  # This results in :
+  #  {
+  #    "default" = [
+  #      "/var/lib/libvirt",
+  #      "/var/lib/libvirt",
+  #      "/var/lib/libvirt",
+  #      "/var/lib/libvirt",
+  #    ]
+  #    "etcd" = [
+  #      "/var/lib/etcd",
+  #    ]
+  #  }
+  # which is not super elegant, but it works with each.value[0].
+  # I don't have a solution to compact the value.
 }
 
 resource "libvirt_pool" "pool" {
-  name = "${var.name}-storage-pool"
-  type = "dir"
-  path = "${var.storage_pool_prefix}/${var.name}-storage-pool"
+  for_each = local.pools
+  name     = "${var.name}-storage-pool-${each.key}"
+  type     = "dir"
+  path     = "${each.value[0]}/${var.name}-storage-pool-${each.key}"
 }
 
 # Base OS image
 resource "libvirt_volume" "base" {
   name   = "${var.name}-base.${var.volume_format}"
   source = "${var.base_volume.uri}/${var.base_volume.name}-${var.base_volume.arch}.${var.base_volume.format}"
-  pool   = libvirt_pool.pool.name
+  pool   = libvirt_pool.pool["default"].name
   format = var.volume_format
 }
 
@@ -44,14 +60,14 @@ resource "libvirt_volume" "vol" {
   for_each       = local.volumes
   name           = "${var.name}-${each.key}.${var.volume_format}"
   base_volume_id = try(each.value.use_base_volume, false) ? libvirt_volume.base.id : null
-  pool           = libvirt_pool.pool.name
+  pool           = libvirt_pool.pool[each.value.pool.name].name
   format         = try(each.value.format, var.volume_format)
   size           = try(each.value.size, var.default_volume_size) * pow(1024, 3)
 }
 
 resource "libvirt_cloudinit_disk" "init" {
   name = "${var.name}-init.iso"
-  pool = libvirt_pool.pool.name
+  pool = libvirt_pool.pool["default"].name
   meta_data = templatefile("${path.module}/templates/meta-data.yml",
     {
       hostname = var.name
