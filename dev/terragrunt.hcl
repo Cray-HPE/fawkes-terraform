@@ -35,11 +35,15 @@ generate "network" {
   path      = "network.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
-%{for hv_name, hv_attrs in include.locals.hypervisors~}
+%{for hv_name, hv_attrs in include.locals.local_networks~}
 module "${hv_name}-isolated-network" {
   source    = "${get_parent_terragrunt_dir()}/modules/network"
   name      = local.local_networks.${hv_name}.local_network.name
   addresses = local.local_networks.${hv_name}.local_network.addresses
+  mtu       = local.local_networks.${hv_name}.local_network.mtu
+  mode      = local.local_networks.${hv_name}.local_network.mode
+  dhcp4     = local.local_networks.${hv_name}.local_network.dhcp4
+  dhcp6     = local.local_networks.${hv_name}.local_network.dhcp6
   providers = {
     libvirt = libvirt.${hv_name}
   }
