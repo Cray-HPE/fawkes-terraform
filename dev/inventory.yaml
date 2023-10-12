@@ -114,7 +114,7 @@ node_defaults:
     name: kubernetes-vm
     size: 20
     uri: /vms/images
-  ssh_keys: ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFckZbB5Gh/EocI9SNvrXrlM7uSy88lsrfp5JwzBkw2E cata@lemon"]
+  ssh_keys: []
 
 hypervisors:
   h001:
