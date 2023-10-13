@@ -12,7 +12,7 @@ hypervisor_defaults:
     dhcp6: false
     static: false
     mtu: 1500
-    mode: nat
+    mode: none
 
 storage_pools_defaults:
   pool:
