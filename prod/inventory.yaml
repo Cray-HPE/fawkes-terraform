@@ -40,6 +40,13 @@ volumes_defaults:
       initialize: true
       fs_type: xfs
       label: K8SLET
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size: 100
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
   etcd:
     - name: etcd
       mount: /var/lib/etcd
@@ -95,7 +102,16 @@ volumes_defaults:
       pool:
         name: ephemeral
         prefix: /vms/store0/pools
-
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size:
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
 node_defaults:
   vcpu: 4
   memory: 16384
