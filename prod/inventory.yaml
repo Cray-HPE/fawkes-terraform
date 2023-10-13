@@ -6,7 +6,7 @@ hypervisor_defaults: {}
 storage_pools_defaults:
   pool:
     name: default
-    prefix: /var/lib/libvirt
+    prefix: /vms/storeA/pools
 
 luks_keys:
   luks-etcd:
@@ -25,25 +25,32 @@ volumes_defaults:
       label: root
     - name: containerd
       mount: /var/lib/containerd
-      size: 100
+      size: 160
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
     - name: run-containerd
       mount: /run/containerd
-      size: 100
+      size: 25
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
       label: K8SLET
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size: 100
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
   etcd:
     - name: etcd
       mount: /var/lib/etcd
@@ -54,7 +61,7 @@ volumes_defaults:
       label: ETCDK8S
       pool:
         name: etcd
-        prefix: /var/lib/etcd
+        prefix: /vms/store0/pools
       luks:
         key: luks-etcd
   worker:
@@ -66,30 +73,51 @@ volumes_defaults:
       use_base_volume: true
       fs_type: xfs
       label: root
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: containerd
       mount: /var/lib/containerd
-      size: 100
+      size: 650
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: run-containerd
       mount: /run/containerd
-      size: 100
+      size: 75
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
       label: K8SLET
-
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size:
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
 node_defaults:
-  vcpu: 4
+  vcpu: 8
   memory: 16384
   network_interfaces:
     - mode: macvtap
