@@ -6,7 +6,7 @@ hypervisor_defaults: {}
 storage_pools_defaults:
   pool:
     name: default
-    prefix: /var/lib/libvirt
+    prefix: /vms/storeA/pools
 
 # This needs to match the roles
 volumes_defaults:
@@ -21,21 +21,21 @@ volumes_defaults:
       label: root
     - name: containerd
       mount: /var/lib/containerd
-      size: 100
+      size: 160
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
     - name: run-containerd
       mount: /run/containerd
-      size: 100
+      size: 25
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
@@ -50,7 +50,7 @@ volumes_defaults:
       label: ETCDK8S
       pool:
         name: etcd
-        prefix: /var/lib/etcd
+        prefix: /vms/store0/pools
       luks:
         key: luks-etcd
   worker:
@@ -62,27 +62,39 @@ volumes_defaults:
       use_base_volume: true
       fs_type: xfs
       label: root
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: containerd
       mount: /var/lib/containerd
-      size: 100
+      size: 650
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: run-containerd
       mount: /run/containerd
-      size: 100
+      size: 75
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
       label: K8SLET
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
 
 node_defaults:
   vcpu: 4
