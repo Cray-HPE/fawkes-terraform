@@ -28,3 +28,7 @@ output "name" {
 output "id" {
   value = libvirt_network.network.id
 }
+
+output "network" {
+  value = libvirt_network.network
+}

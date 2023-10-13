@@ -6,8 +6,13 @@ hypervisor_defaults:
   local_network:
     name: isolated
     addresses:
-      - 192.168.201.0/24
-    dhcp: true
+      - "192.168.201.0/24"
+      #- "2001:db8:ca2:2::1/64"
+    dhcp4: true
+    dhcp6: false
+    static: false
+    mtu: 1500
+    mode: none
 
 storage_pools_defaults:
   pool:
@@ -97,8 +102,12 @@ volumes_defaults:
 node_defaults:
   vcpu: 2
   memory: 4096
-  interfaces:
-  - enp42s0
+  network_interfaces:
+    - mode: macvtap
+      target: enp42s0
+      mtu: 1500
+      dhcp4: true
+      dhcp6: false
   base_volume:
     arch: x86_64
     format: qcow2

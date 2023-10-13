@@ -35,7 +35,6 @@ locals {
         { hv_name : k },
         { vm_name : vm },
         { role : try(vmv.roles[0], "undef") },
-        { local_networks : try([v.local_network.name], []) },
         vmv
       )
     ] if try(v.vms, {}) != {}
@@ -100,7 +99,7 @@ locals {
               { hv_name : k },
               { vm_name : vm },
               { role : try(vmv.roles[0], "undef") },
-              { local_networks : try([v.local_network.name], []) },
+              { local_network : try(v.local_network, {}) },
               vmv
             )
           ] if try(v.vms, {}) != {}
@@ -157,10 +156,10 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
   environment         = local.globals.env_name
   source              = "${get_parent_terragrunt_dir()}/modules/kubernetes"
   name                = "kubernetes-${node_attrs.role}-${node_name}"
-  interfaces          = local.nodes.${node_name}.interfaces
+  network_interfaces  = local.nodes.${node_name}.network_interfaces
   base_volume         = local.nodes.${node_name}.base_volume
 %{if try(local.hypervisors[node_attrs.hv_name].local_network, {}) != {} ~}
-  local_networks      = [module.${node_attrs.hv_name}-isolated-network.id]
+  local_network       = merge(local.nodes.${node_name}.local_network, { id = module.${node_attrs.hv_name}-isolated-network.id })
 %{endif}
   roles               = local.nodes.${node_name}.roles
   volumes             = local.nodes.${node_name}.volumes

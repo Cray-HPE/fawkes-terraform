@@ -24,7 +24,7 @@
 
 locals {
   volumes = { for k, v in var.volumes : "${k}-${v.name}" => v }
-  pools  = { for v in var.volumes : (v.pool.name) => v.pool.prefix... }
+  pools   = { for v in var.volumes : (v.pool.name) => v.pool.prefix... }
   # This results in :
   #  {
   #    "default" = [
@@ -39,6 +39,11 @@ locals {
   #  }
   # which is not super elegant, but it works with each.value[0].
   # I don't have a solution to compact the value.
+  _network_interfaces = flatten([
+    [ for k,v in ( var.local_network != {} ? [var.local_network] : [] ) : { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }],
+    [ for k,v in var.network_interfaces : { index = k+1, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.mode}-${v.target}" }]
+  ])
+  network_interfaces = { for k,v in local._network_interfaces : "eth${v.index}" => v}
 }
 
 resource "libvirt_pool" "pool" {
@@ -74,7 +79,7 @@ resource "libvirt_cloudinit_disk" "init" {
   })
   network_config = templatefile("${path.module}/templates/network-config.yml",
     {
-
+      interfaces = local.network_interfaces
   })
   user_data = templatefile("${path.module}/templates/user-data.yml",
     {
@@ -94,18 +99,23 @@ resource "libvirt_domain" "vm" {
   cloudinit = libvirt_cloudinit_disk.init.id
 
   dynamic "network_interface" {
-    for_each = var.local_networks
+    for_each = var.local_network != {} ? [var.local_network] : []
     content {
-      network_id     = network_interface.value
+      network_id     = network_interface.value.id
       hostname       = var.name
       wait_for_lease = true
     }
   }
 
   dynamic "network_interface" {
-    for_each = var.interfaces
+    for_each = var.network_interfaces
     content {
-      macvtap = network_interface.value
+      mac         = try(network_interface.value.mac, null)
+      addresses   = try(network_interface.value.addresses, null)
+      bridge      = network_interface.value.mode == "bridge" ? network_interface.value.target : null
+      vepa        = network_interface.value.mode == "vepa" ? network_interface.value.target : null
+      macvtap     = network_interface.value.mode == "macvtap" ? network_interface.value.target : null
+      passthrough = network_interface.value.mode == "passthrough" ? network_interface.value.target : null
     }
   }
 
