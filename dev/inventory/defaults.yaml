@@ -1,6 +1,3 @@
-globals:
-  env_name: dev
-
 hypervisor_defaults:
   uri: qemu:///system
   local_network:
@@ -115,17 +112,3 @@ node_defaults:
     size: 20
     uri: /vms/images
   ssh_keys: []
-
-hypervisors:
-  h001:
-    vms:
-      v001:
-        roles:
-        - master
-        - etcd
-      v002:
-        roles:
-        - worker
-      v003:
-        roles:
-        - worker
