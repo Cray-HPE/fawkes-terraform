@@ -98,3 +98,8 @@ variable "ssh_keys" {
   type = list(string)
   default = []
 }
+
+variable "pci_mapping" {
+  type = list(any)
+  default = []
+}

@@ -16,10 +16,6 @@ storage_pools_defaults:
     name: default
     prefix: /var/lib/libvirt
 
-luks_keys:
-  luks-etcd:
-    filename: /etc/pki/luks-etcd.key
-
 # this needs to match the VM roles
 volumes_defaults:
   master:

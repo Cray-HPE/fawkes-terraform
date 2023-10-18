@@ -1,8 +1,8 @@
-
 hypervisors:
   h001:
     vms:
       v001:
+        pci_passthrough: true
         roles:
         - master
         - etcd

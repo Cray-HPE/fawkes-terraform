@@ -27,10 +27,7 @@ terragrunt_version_constraint = "<0.52"
 # The nodes and hypervisors here are minimal just for code generation
 # The real locals are in the generate block further down
 locals {
-  inventory = merge(
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
-  )
+  inventory = merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.{yaml,json}") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten([
     for k, v in local.hypervisors : [
@@ -92,52 +89,45 @@ generate "locals" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 locals {
-  inventory = merge(
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
-  )
+  inventory      = merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.{yaml,json}") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
   ssh_keys       = [ for f in fileset("${get_terragrunt_dir()}", "ssh-keys/*.pub") : trimspace(file(format("${get_terragrunt_dir()}/%s", f))) ]
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
-  _nodes = flatten(
-    [
-      for k,v in local.hypervisors :
-        [
-          for vm, vmv in v.vms : merge(
-              { hv_name : k },
-              { vm_name : vm },
-              { role : try(vmv.roles[0], "undef") },
-              { local_network : try(v.local_network, {}) },
-              vmv
-            )
-          ] if try(v.vms, {}) != {}
-    ]
-  )
+  _nodes = flatten([
+    for k,v in local.hypervisors : [
+      for vm, vmv in v.vms : merge(
+        { hv_name : k },
+        { vm_name : vm },
+        { role : try(vmv.roles[0], "undef") },
+        { local_network : try(v.local_network, {}) },
+        vmv
+      )
+    ] if try(v.vms, {}) != {}
+  ])
   _volumes_defaults = { for k, v in local.inventory.volumes_defaults : k => [
     for i in v : merge(
       local.inventory.storage_pools_defaults,
       i,
       try(i.luks.key, "") != "" ? { "luks" = merge(i.luks, local.luks_keys[i.luks.key]) } : {}
-    )]
-  }
-  hypervisors = { for k, v in local.inventory.hypervisors : k=> merge(local.inventory.hypervisor_defaults, v) }
+    )
+  ]}
+  _hypervisors = merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/hypervisors/*.{yaml,json}") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
+  hypervisors  = { for k, v in local.inventory.hypervisors : k => merge(local.inventory.hypervisor_defaults, merge(v, try(local._hypervisors[k], {}))) }
   nodes = { for k, v in local._nodes : (format("%s-%s", v.hv_name, v.vm_name)) => merge(
     local.inventory.node_defaults,
     v,
     { "base_volume" = length(regexall("hypervisor(\\.local)?/system", local.hypervisors[v.hv_name].uri)) > 0 ? merge(
       local.inventory.node_defaults.base_volume,
-      {
-        "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
-      }
+      { "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local") }
     ) : local.inventory.node_defaults.base_volume },
     { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) },
-    { "ssh_keys" = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) }
-  ) }
+    { "ssh_keys" = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) },
+    { "pci_mapping" = try(v.pci_passthrough, false) ? local.hypervisors[v.hv_name].pci_mapping : [] }
+  )}
   globals     = local.inventory.globals
   luks_keys = { for k, v in local.inventory.luks_keys : k => merge(
     v,
     { "content" = module.luks_keys[k].key }
-    )
-  }
+  )}
 }
 EOF
 }
@@ -172,6 +162,7 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
   roles               = local.nodes.${node_name}.roles
   volumes             = local.nodes.${node_name}.volumes
   ssh_keys            = local.nodes.${node_name}.ssh_keys
+  pci_mapping         = local.nodes.${node_name}.pci_mapping
   providers           = {
     libvirt = libvirt.${node_attrs.hv_name}
   }

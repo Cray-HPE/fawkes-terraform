@@ -1,0 +1,18 @@
+h001:
+  pci_mapping:
+  - bus: '0x81'
+    domain: '0x0000'
+    function: '0x0'
+    slot: '0x00'
+  - bus: '0x81'
+    domain: '0x0000'
+    function: '0x1'
+    slot: '0x00'
+  - bus: '0xda'
+    domain: '0x0000'
+    function: '0x0'
+    slot: '0x00'
+  - bus: '0xda'
+    domain: '0x0000'
+    function: '0x1'
+    slot: '0x00'

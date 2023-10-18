@@ -1,0 +1,3 @@
+luks_keys:
+  luks-etcd:
+    filename: /etc/pki/luks-etcd.key

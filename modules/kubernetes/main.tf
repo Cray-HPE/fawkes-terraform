@@ -140,4 +140,10 @@ resource "libvirt_domain" "vm" {
     autoport    = true
   }
 
+  dynamic "xml" {
+    for_each = length(var.pci_mapping) > 0 ? ["1"] : []
+    content {
+      xslt = templatefile("${path.module}/templates/domain-xslt.xml.tpl", { pci_data = var.pci_mapping } )
+    }
+  }
 }
