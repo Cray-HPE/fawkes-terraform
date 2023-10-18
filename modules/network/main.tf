@@ -26,7 +26,8 @@ resource "libvirt_network" "network" {
   autostart = var.autostart
   mode      = var.mode
   addresses = var.addresses
+  mtu       = var.mtu
   dhcp {
-    enabled = var.dhcp_enabled
+    enabled = var.dhcp4 || var.dhcp6
   }
 }

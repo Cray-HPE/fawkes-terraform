@@ -1,24 +1,18 @@
 globals:
-  env_name: dev
+  env_name: prod
 
-hypervisor_defaults:
-  uri: qemu:///system
-  local_network:
-    name: isolated
-    addresses:
-      - 192.168.201.0/24
-    dhcp: true
+hypervisor_defaults: {}
 
 storage_pools_defaults:
   pool:
     name: default
-    prefix: /var/lib/libvirt
+    prefix: /vms/storeA/pools
 
 luks_keys:
   luks-etcd:
     filename: /etc/pki/luks-etcd.key
 
-# this needs to match the VM roles
+# This needs to match the roles
 volumes_defaults:
   master:
     - name: root
@@ -31,25 +25,32 @@ volumes_defaults:
       label: root
     - name: containerd
       mount: /var/lib/containerd
-      size: 10
+      size: 160
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
     - name: run-containerd
       mount: /run/containerd
-      size: 10
+      size: 25
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
       label: K8SLET
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size: 100
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
   etcd:
     - name: etcd
       mount: /var/lib/etcd
@@ -60,63 +61,105 @@ volumes_defaults:
       label: ETCDK8S
       pool:
         name: etcd
-        prefix: /var/lib/etcd
+        prefix: /vms/store0/pools
       luks:
         key: luks-etcd
   worker:
     - name: root
       mount: /
-      size: 21
+      size: 100
       wwn: 300000000000b001
       initialize: false
       use_base_volume: true
       fs_type: xfs
       label: root
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: containerd
       mount: /var/lib/containerd
-      size: 10
+      size: 650
       wwn: 3000000000a1eead
       initialize: true
       fs_type: xfs
       label: CONLIB
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: run-containerd
       mount: /run/containerd
-      size: 10
+      size: 75
       wwn: 300000c0e1a1eead
       initialize: true
       fs_type: xfs
       label: CONRUN
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
     - name: kubelet
       mount: /var/lib/kubelet
-      size: 10
+      size: 40
       wwn: 300000000c0be1e1
       initialize: true
       fs_type: xfs
       label: K8SLET
-
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
+    - name: s3fs_cache
+      mount: /var/lib/s3fs_cache
+      size:
+      wwn: 30000000000cac1e
+      initialize: true
+      fs_type: xfs
+      label: S3FS
+      pool:
+        name: ephemeral
+        prefix: /vms/store0/pools
 node_defaults:
-  vcpu: 2
-  memory: 4096
-  interfaces:
-  - enp42s0
+  vcpu: 8
+  memory: 16384
+  network_interfaces:
+    - mode: macvtap
+      target: bond0.nmn0
+      mtu: 9000
+      dhcp4: true
+      dhcp6: false
+    - mode: macvtap
+      target: bond0.hmn0
+      mtu: 9000
+      dhcp4: true
+      dhcp6: false
+    - mode: macvtap
+      target: bond0.cmn0
+      mtu: 9000
+      dhcp4: true
+      dhcp6: false
   base_volume:
     arch: x86_64
     format: qcow2
     name: kubernetes-vm
-    size: 20
-    uri: /vms/images
+    size: 100
+    uri: "http://bootserver/nexus/repository/fawkes-images/kubernetes-vm"
   ssh_keys: []
 
 hypervisors:
-  h001:
+  ncn-h001:
+    uri: "qemu+ssh://root@hypervisor.local/system?keyfile=/root/.ssh/id_ed25519"
     vms:
       v001:
         roles:
         - master
         - etcd
-      v002:
+  ncn-h002:
+    uri: "qemu+ssh://root@ncn-h002/system?keyfile=/root/.ssh/id_ed25519"
+    vms:
+      v001:
         roles:
         - worker
-      v003:
+  ncn-h003:
+    uri: "qemu+ssh://root@ncn-h003/system?keyfile=/root/.ssh/id_ed25519"
+    vms:
+      v001:
         roles:
         - worker

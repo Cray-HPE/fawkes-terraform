@@ -37,7 +37,7 @@ variable "autostart" {
 variable "mode" {
   description = "The network mode"
   type        = string
-  default     = "none"
+  default     = "nat"
 }
 
 variable "addresses" {
@@ -58,8 +58,18 @@ variable "dns_local_only" {
   default     = true
 }
 
-variable "dhcp_enabled" {
-  description = "If DHCP is enabled on the network"
+variable "dhcp4" {
+  description = "If DHCP4 is enabled on the network"
   type        = bool
   default     = true
+}
+
+variable "dhcp6" {
+  description = "If DHCP6 is enabled on the network"
+  type        = bool
+  default     = false
+}
+
+variable "mtu" {
+  default = null
 }

@@ -27,7 +27,10 @@ terragrunt_version_constraint = "<0.52"
 # The nodes and hypervisors here are minimal just for code generation
 # The real locals are in the generate block further down
 locals {
-  inventory      = yamldecode(file("${get_terragrunt_dir()}/inventory.yaml"))
+  inventory = merge(
+    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
+    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
+  )
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten([
     for k, v in local.hypervisors : [
@@ -35,7 +38,6 @@ locals {
         { hv_name : k },
         { vm_name : vm },
         { role : try(vmv.roles[0], "undef") },
-        { local_networks : try([v.local_network.name], []) },
         vmv
       )
     ] if try(v.vms, {}) != {}
@@ -90,7 +92,10 @@ generate "locals" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 locals {
-  inventory      = yamldecode(file("${get_terragrunt_dir()}/inventory.yaml"))
+  inventory = merge(
+    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
+    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
+  )
   ssh_keys       = [ for f in fileset("${get_terragrunt_dir()}", "ssh-keys/*.pub") : trimspace(file(format("${get_terragrunt_dir()}/%s", f))) ]
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten(
@@ -101,7 +106,7 @@ locals {
               { hv_name : k },
               { vm_name : vm },
               { role : try(vmv.roles[0], "undef") },
-              { local_networks : try([v.local_network.name], []) },
+              { local_network : try(v.local_network, {}) },
               vmv
             )
           ] if try(v.vms, {}) != {}
@@ -159,10 +164,10 @@ module "${node_name}-kubernetes-${node_attrs.role}" {
   environment         = local.globals.env_name
   source              = "${get_parent_terragrunt_dir()}/modules/kubernetes"
   name                = "kubernetes-${node_attrs.role}-${node_name}"
-  interfaces          = local.nodes.${node_name}.interfaces
+  network_interfaces  = local.nodes.${node_name}.network_interfaces
   base_volume         = local.nodes.${node_name}.base_volume
 %{if try(local.hypervisors[node_attrs.hv_name].local_network, {}) != {} ~}
-  local_networks      = [module.${node_attrs.hv_name}-isolated-network.id]
+  local_network       = merge(local.nodes.${node_name}.local_network, { id = module.${node_attrs.hv_name}-isolated-network.id })
 %{endif}
   roles               = local.nodes.${node_name}.roles
   volumes             = local.nodes.${node_name}.volumes

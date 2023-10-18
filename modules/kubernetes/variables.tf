@@ -76,16 +76,16 @@ variable "vcpu" {
   default     = 2
 }
 
-variable "local_networks" {
+variable "local_network" {
   description = "A list of local networks to add to the VM. This is used for development."
-  type        = list(string)
-  default     = []
+  type        = any
+  default     = {}
 }
 
-variable "interfaces" {
+variable "network_interfaces" {
   description = "List of host interfaces that will the VM will receive a macvtap interface for"
-  type        = list(string)
-  default     = ["eth0"]
+  type        = list(map(string))
+  default     = []
 }
 
 variable "environment" {
