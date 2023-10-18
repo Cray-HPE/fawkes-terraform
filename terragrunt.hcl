@@ -96,6 +96,7 @@ locals {
     merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
     merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
   )
+  ssh_keys       = [ for f in fileset("${get_terragrunt_dir()}", "ssh-keys/*.pub") : trimspace(file(format("${get_terragrunt_dir()}/%s", f))) ]
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten(
     [
@@ -128,7 +129,8 @@ locals {
         "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local")
       }
     ) : local.inventory.node_defaults.base_volume },
-    { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) }
+    { "volumes" = flatten([for k, v in v.roles : local._volumes_defaults[v]]) },
+    { "ssh_keys" = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) }
   ) }
   globals     = local.inventory.globals
   luks_keys = { for k, v in local.inventory.luks_keys : k => merge(

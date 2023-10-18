@@ -28,3 +28,6 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore all public keys from ssh-keys/ folders
+**/ssh-keys/*.pub
