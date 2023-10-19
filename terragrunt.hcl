@@ -21,8 +21,8 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-# terraform_version_constraint  = "<0.14"
-# terragrunt_version_constraint = "<0.52"
+terraform_version_constraint  = "<0.14"
+terragrunt_version_constraint = "<0.52"
 
 # The nodes and hypervisors here are minimal just for code generation
 # The real locals are in the generate block further down
