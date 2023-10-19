@@ -44,19 +44,20 @@ locals {
     [for k, v in var.network_interfaces : { index = k + length(var.local_networks), dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.mode}-${v.target}" }]
   ])
   network_interfaces = { for k, v in local._network_interfaces : "eth${k}" => v }
-  hostname = ""
+  prefix = var.prefix != "" ? "${var.prefix}-" : ""
+  hostname = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
 }
 
 resource "libvirt_pool" "pool" {
   for_each = local.pools
-  name     = "${var.name}-storage-pool-${each.key}"
+  name     = "${local.hostname}-storage-pool-${each.key}"
   type     = "dir"
-  path     = "${each.value[0]}/${var.name}-storage-pool-${each.key}"
+  path     = "${each.value[0]}/${local.hostname}-storage-pool-${each.key}"
 }
 
 # Base OS image
 resource "libvirt_volume" "base" {
-  name   = "${var.name}-base.${var.volume_format}"
+  name   = "${local.hostname}-base.${var.volume_format}"
   source = "${var.base_volume.uri}/${var.base_volume.name}-${var.base_volume.arch}.${var.base_volume.format}"
   pool   = libvirt_pool.pool["default"].name
   format = var.volume_format
@@ -64,7 +65,7 @@ resource "libvirt_volume" "base" {
 
 resource "libvirt_volume" "vol" {
   for_each       = local.volumes
-  name           = "${var.name}-${each.key}.${var.volume_format}"
+  name           = "${local.hostname}-${each.key}.${var.volume_format}"
   base_volume_id = try(each.value.use_base_volume, false) ? libvirt_volume.base.id : null
   pool           = libvirt_pool.pool[each.value.pool.name].name
   format         = try(each.value.format, var.volume_format)
@@ -72,11 +73,11 @@ resource "libvirt_volume" "vol" {
 }
 
 resource "libvirt_cloudinit_disk" "init" {
-  name = "${var.name}-init.iso"
+  name = "${local.hostname}-init.iso"
   pool = libvirt_pool.pool["default"].name
   meta_data = templatefile("${path.module}/templates/meta-data.yml",
     {
-      hostname = var.name
+      hostname = local.hostname
   })
   network_config = templatefile("${path.module}/templates/network-config.yml",
     {
@@ -84,14 +85,14 @@ resource "libvirt_cloudinit_disk" "init" {
   })
   user_data = templatefile("${path.module}/templates/user-data.yml",
     {
-      hostname = var.name
+      hostname = local.hostname
       volumes  = local.volumes
       ssh_keys = var.ssh_keys
   })
 }
 
 resource "libvirt_domain" "vm" {
-  name       = var.name
+  name       = local.hostname
   memory     = var.memory
   vcpu       = var.vcpu
   autostart  = true
@@ -104,7 +105,7 @@ resource "libvirt_domain" "vm" {
     content {
       network_id     = network_interface.value.create ? network_interface.value.id : null
       network_name   = network_interface.value.create ? null : network_interface.value.name
-      hostname       = var.name
+      hostname       = local.hostname
       wait_for_lease = true
     }
   }

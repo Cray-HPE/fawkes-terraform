@@ -46,3 +46,7 @@ variable "luks_keys" {
   type    = map(string)
   default = {}
 }
+
+variable "hypervisor_name" {
+  type = string
+}

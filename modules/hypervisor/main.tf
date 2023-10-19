@@ -30,6 +30,7 @@ module "domain" {
   vcpu                = each.value.vcpu
   memory              = each.value.memory
   name                = each.key
+  hypervisor_name     = var.hypervisor_name
   network_interfaces  = each.value.network_interfaces
   base_volume         = each.value.base_volume
   # this grabs the network_id for the ones we created

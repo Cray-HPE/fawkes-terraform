@@ -91,6 +91,7 @@ module "${hv_name}-hypervisor" {
   source              = "${get_parent_terragrunt_dir()}/modules/hypervisor"
 
   environment         = module.inventory.globals.env_name
+  hypervisor_name     = "${hv_name}"
   local_networks      = module.inventory.hypervisors.${hv_name}.local_networks
   domains             = module.inventory.hypervisors.${hv_name}.vms
 
