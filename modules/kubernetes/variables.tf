@@ -98,3 +98,11 @@ variable "ssh_keys" {
   type    = list(string)
   default = []
 }
+
+variable "hypervisor_name" {
+  type = string
+}
+
+variable "prefix" {
+  default = "kubernetes"
+}
