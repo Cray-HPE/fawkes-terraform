@@ -40,10 +40,11 @@ locals {
   # which is not super elegant, but it works with each.value[0].
   # I don't have a solution to compact the value.
   _network_interfaces = flatten([
-    [ for k,v in ( var.local_network != {} ? [var.local_network] : [] ) : { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }],
-    [ for k,v in var.network_interfaces : { index = k+1, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.mode}-${v.target}" }]
+    [for k, v in var.local_networks : { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }],
+    [for k, v in var.network_interfaces : { index = k + length(var.local_networks), dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.mode}-${v.target}" }]
   ])
-  network_interfaces = { for k,v in local._network_interfaces : "eth${v.index}" => v}
+  network_interfaces = { for k, v in local._network_interfaces : "eth${k}" => v }
+  hostname = ""
 }
 
 resource "libvirt_pool" "pool" {
@@ -99,9 +100,10 @@ resource "libvirt_domain" "vm" {
   cloudinit = libvirt_cloudinit_disk.init.id
 
   dynamic "network_interface" {
-    for_each = var.local_network != {} ? [var.local_network] : []
+    for_each = var.local_networks
     content {
-      network_id     = network_interface.value.id
+      network_id     = network_interface.value.create ? network_interface.value.id : null
+      network_name   = network_interface.value.create ? null : network_interface.value.name
       hostname       = var.name
       wait_for_lease = true
     }

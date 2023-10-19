@@ -22,11 +22,19 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
+variable "networks" {
+  type = any
+  default = []
 }
 
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+variable "dns_enabled" {
+  description = "If DNS is enabled on the network"
+  type        = bool
+  default     = true
+}
+
+variable "dns_local_only" {
+  description = "If DNS is local only on the network"
+  type        = bool
+  default     = true
 }

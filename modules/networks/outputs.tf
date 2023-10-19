@@ -22,11 +22,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
+output "name" {
+  value = { for k, v in libvirt_network.network : k => v.name }
 }
 
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+output "id" {
+  value = { for k, v in libvirt_network.network : k => v.id }
+}
+
+output "network" {
+  value = libvirt_network.network
 }

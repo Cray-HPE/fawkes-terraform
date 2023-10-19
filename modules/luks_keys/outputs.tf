@@ -22,11 +22,9 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
-}
-
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+output "key" {
+  value = { for k, v in var.keys : k => merge(
+    v,
+    { "content" = random_password.key[k].result }
+  )}
 }

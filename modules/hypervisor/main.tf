@@ -22,11 +22,28 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
+module "domain" {
+  for_each = var.domains
+  source = "./kubernetes"
+
+  environment         = var.environment
+  vcpu                = each.value.vcpu
+  memory              = each.value.memory
+  name                = each.key
+  network_interfaces  = each.value.network_interfaces
+  base_volume         = each.value.base_volume
+  # this grabs the network_id for the ones we created
+  local_networks      = [ for k,v in each.value.local_networks : merge(
+    v,
+    (v.create ? { "id" = module.network.id[v.name]} : {})
+  )]
+  roles               = each.value.roles
+  volumes             = each.value.volumes
+  ssh_keys            = each.value.ssh_keys
 }
 
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+# change to for_each and use network
+module "network" {
+  source = "./networks"
+  networks = var.local_networks
 }

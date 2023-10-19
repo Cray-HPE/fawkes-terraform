@@ -4,11 +4,12 @@ hypervisors:
     vms:
       v001:
         roles:
-        - master
-        - etcd
+          - master
+          - etcd
       v002:
         roles:
         - worker
       v003:
         roles:
         - worker
+
