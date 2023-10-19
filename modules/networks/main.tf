@@ -22,11 +22,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
-}
-
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+resource "libvirt_network" "network" {
+  for_each  = { for k,v in var.networks : v.name => v if v.create }
+  name      = each.value.name
+  autostart = try(each.value.autostart, true)
+  mode      = each.value.mode
+  addresses = each.value.addresses
+  mtu       = each.value.mtu
+  dhcp {
+    enabled = each.value.dhcp4 || each.value.dhcp6
+  }
 }

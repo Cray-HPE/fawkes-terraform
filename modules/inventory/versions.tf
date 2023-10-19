@@ -22,11 +22,11 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
-}
-
 terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+  required_providers {
+    random = {
+      source = "hashicorp/random"
+      version = "~>3"
+    }
+  }
 }

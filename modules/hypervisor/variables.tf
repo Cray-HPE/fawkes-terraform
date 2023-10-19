@@ -22,11 +22,27 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-include {
-  path   = find_in_parent_folders()
-  expose = true
+variable "local_networks" {
+  type    = any
+  default = []
 }
 
-terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+variable "domains" {
+  type    = any
+  default = {}
+}
+
+variable "environment" {
+  type    = string
+  default = "undef"
+}
+
+variable "data_path" {
+  type    = string
+  default = "/"
+}
+
+variable "luks_keys" {
+  type    = map(string)
+  default = {}
 }

@@ -21,12 +21,11 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-
-include {
-  path   = find_in_parent_folders()
-  expose = true
-}
-
 terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/noop"
+  required_providers {
+    libvirt = {
+      source  = "dmacvicar/libvirt"
+      version = "0.7.1"
+    }
+  }
 }
