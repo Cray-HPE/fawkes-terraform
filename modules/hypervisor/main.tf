@@ -27,6 +27,7 @@ module "domain" {
   source = "./kubernetes"
 
   environment         = var.environment
+  prefix              = var.prefix
   vcpu                = each.value.vcpu
   memory              = each.value.memory
   name                = each.key

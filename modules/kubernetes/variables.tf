@@ -104,5 +104,6 @@ variable "hypervisor_name" {
 }
 
 variable "prefix" {
+  type    = string
   default = "kubernetes"
 }
