@@ -99,6 +99,12 @@ variable "ssh_keys" {
   default = []
 }
 
+variable "pci_devices" {
+  description = "List of all the PCI devices that will be passed to the VM"
+  type        = list(any)
+  default     = []
+}
+
 variable "hypervisor_name" {
   type = string
 }
