@@ -33,6 +33,7 @@ module "domain" {
   name                = each.key
   hypervisor_name     = var.hypervisor_name
   network_interfaces  = each.value.network_interfaces
+  pci_devices         = each.value.pci_devices
   base_volume         = each.value.base_volume
   # this grabs the network_id for the ones we created
   local_networks      = [ for k,v in each.value.local_networks : merge(
