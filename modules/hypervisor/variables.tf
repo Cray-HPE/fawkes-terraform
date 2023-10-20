@@ -50,3 +50,8 @@ variable "luks_keys" {
 variable "hypervisor_name" {
   type = string
 }
+
+variable "prefix" {
+  type    = string
+  default = ""
+}

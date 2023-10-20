@@ -60,17 +60,6 @@ terraform {
 EOF
 }
 
-# generate "luks_keys" {
-#   path      = "luks_keys.tf"
-#   if_exists = "overwrite_terragrunt"
-#   contents  = <<EOF
-# module "luks_keys" {
-#   source = "${get_parent_terragrunt_dir()}/modules/luks_keys"
-#   keys   = module.inventory.luks_keys
-# }
-# EOF
-# }
-
 generate "inventory" {
   path = "inventory.tf"
   if_exists = "overwrite_terragrunt"
@@ -91,6 +80,7 @@ module "${hv_name}-hypervisor" {
   source              = "${get_parent_terragrunt_dir()}/modules/hypervisor"
 
   environment         = module.inventory.globals.env_name
+  prefix              = module.inventory.globals.prefix
   hypervisor_name     = "${hv_name}"
   local_networks      = module.inventory.hypervisors.${hv_name}.local_networks
   domains             = module.inventory.hypervisors.${hv_name}.vms
