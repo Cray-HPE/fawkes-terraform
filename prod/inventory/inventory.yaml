@@ -105,7 +105,7 @@ volumes_defaults:
         prefix: /vms/store0/pools
     - name: s3fs_cache
       mount: /var/lib/s3fs_cache
-      size:
+      size: 100
       wwn: 30000000000cac1e
       initialize: true
       fs_type: xfs
