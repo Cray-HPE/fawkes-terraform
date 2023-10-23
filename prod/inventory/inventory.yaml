@@ -73,9 +73,6 @@ volumes_defaults:
       use_base_volume: true
       fs_type: xfs
       label: root
-      pool:
-        name: ephemeral
-        prefix: /vms/store0/pools
     - name: containerd
       mount: /var/lib/containerd
       size: 650
