@@ -23,7 +23,7 @@
 #
 
 variable "networks" {
-  type = any
+  type    = any
   default = []
 }
 

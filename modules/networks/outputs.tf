@@ -23,11 +23,11 @@
 #
 
 output "name" {
-  value = { for k, v in libvirt_network.network : k => v.name }
+  value = {for k, v in libvirt_network.network : k => v.name}
 }
 
 output "id" {
-  value = { for k, v in libvirt_network.network : k => v.id }
+  value = {for k, v in libvirt_network.network : k => v.id}
 }
 
 output "network" {
