@@ -22,14 +22,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 terraform_version_constraint  = "<0.14"
-terragrunt_version_constraint = "<0.52"
+terragrunt_version_constraint = "<0.53"
 
 # The nodes and hypervisors here are minimal just for code generation
 # The real locals are in the generate block further down
 locals {
   inventory = merge(
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...),
-    merge([ for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f))) ]...)
+    merge([for f in fileset("${get_terragrunt_dir()}", "inventory/*.yaml") : yamldecode(file(format("${get_terragrunt_dir()}/%s", f)))]...),
+    merge([for f in fileset("${get_terragrunt_dir()}", "inventory/*.json") : jsondecode(file(format("${get_terragrunt_dir()}/%s", f)))]...)
   )
   local_networks = { for k, v in local.hypervisors : k => v if try(v.local_network.name, "") != "" }
   _nodes = flatten([
