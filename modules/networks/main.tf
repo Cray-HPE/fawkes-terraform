@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
-
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+resource "libvirt_network" "network" {
+  for_each  = { for k,v in var.networks : v.name => v if v.create }
+  name      = each.value.name
+  autostart = try(each.value.autostart, true)
+  mode      = each.value.mode
+  addresses = each.value.addresses
+  mtu       = each.value.mtu
+  dhcp {
+    enabled = each.value.dhcp4 || each.value.dhcp6
+  }
+}

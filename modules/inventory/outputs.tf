@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+output "hypervisors" {
+  value = local.hypervisors
+}
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
+output "globals" {
+  value = local.globals
+}
 
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+output "ssh_keys" {
+  value = local.ssh_keys
+}

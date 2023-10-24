@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,19 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+variable "data_path" {
+  default = "/"
+}
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
+variable "ssh_keys_path" {
+  default = "ssh-keys"
+}
 
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
+variable "inventory_path" {
+  default = "inventory"
+}
 
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+variable "luks_keys" {
+  type = map
+  default = {}
+}

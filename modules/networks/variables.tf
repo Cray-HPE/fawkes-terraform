@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,19 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+variable "networks" {
+  type = any
+  default = []
+}
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
+variable "dns_enabled" {
+  description = "If DNS is enabled on the network"
+  type        = bool
+  default     = true
+}
 
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+variable "dns_local_only" {
+  description = "If DNS is local only on the network"
+  type        = bool
+  default     = true
+}

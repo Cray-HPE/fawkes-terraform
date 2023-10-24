@@ -26,7 +26,3 @@ resource "random_password" "key" {
   length           = 128
   special          = true
 }
-
-output "key" {
-  value = random_password.key.result
-}
