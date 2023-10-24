@@ -6,7 +6,7 @@ hypervisor_defaults: {}
 
 network_defaults:
   addresses: []
-  dhcp4: false
+  dhcp4: true
   dhcp6: false
   static: false
   mtu: 9000
