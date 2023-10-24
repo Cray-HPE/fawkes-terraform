@@ -15,8 +15,8 @@ hypervisor_defaults:
       addresses:
         - "192.168.201.0/24"
         #- "2001:db8:ca2:2::1/64"
-    - name: management
-      create: false
+#    - name: management
+#      create: false
 
 storage_pools_defaults:
   pool:
