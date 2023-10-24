@@ -35,6 +35,6 @@ variable "inventory_path" {
 }
 
 variable "luks_keys" {
-  type = map
+  type    = map
   default = {}
 }
