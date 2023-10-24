@@ -61,7 +61,7 @@ EOF
 }
 
 generate "inventory" {
-  path = "inventory.tf"
+  path      = "inventory.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 module "inventory" {
