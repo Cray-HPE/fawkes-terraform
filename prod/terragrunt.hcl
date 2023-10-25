@@ -28,5 +28,5 @@ include {
 }
 
 terraform {
-  source = "${get_parent_terragrunt_dir()}/modules/"
+  source = "${get_parent_terragrunt_dir()}/modules/noop"
 }

@@ -23,6 +23,6 @@
 #
 
 resource "random_password" "key" {
-  length           = 128
-  special          = true
+  length  = 128
+  special = true
 }

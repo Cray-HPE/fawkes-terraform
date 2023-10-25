@@ -4,24 +4,24 @@ hostname: ${hostname}
 fqdn: ${hostname}.local
 manage_etc_hosts: true
 fs_setup:
-%{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
+  %{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
   - label: ${v.label}
     filesystem: ${v.fs_type}
     overwrite: ${try(v.wipe, false)}
     device: /dev/disk/by-id/wwn-0x${v.wwn}
-%{ endfor ~}
+    %{ endfor ~}
 mounts:
-# [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs-freq, fs_passno ].
-%{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
-  - ["/dev/disk/by-id/wwn-0x${v.wwn}", "${v.mount}", "${v.fs_type}"]
-%{ endfor ~}
+  # [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs-freq, fs_passno ].
+  %{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
+  - [ "/dev/disk/by-id/wwn-0x${v.wwn}", "${v.mount}", "${v.fs_type}" ]
+      %{ endfor ~}
 users:
   - name: root
     ssh_authorized_keys: ${jsonencode(ssh_keys)}
 write_files:
   - path: "/tmp/write_files"
     content: "write_files"
-%{ for k,v in { for k,v in volumes : k=>v if try(v.luks.key, "") != "" } ~}
+  %{ for k,v in { for k,v in volumes : k=>v if try(v.luks.key, "") != "" } ~}
   - path: ${v.luks.filename}
     permissions: "0400"
     content: ${indent(4, yamlencode(v.luks.content))}
@@ -30,16 +30,16 @@ write_files:
     content: |
       #!/bin/bash
       #/var/lib/cloud/scripts/per-instance/
-
+      
       DEVICE=/dev/disk/by-id/wwn-0x${v.wwn}
       KEYFILE=${v.luks.filename}
-
+      
       IS_LUKS=$(cryptsetup -q luksUUID $DEVICE)
       if [[ $? == 0 ]]; then
         echo "Device $DEVICE is already initialized: UUID=$IS_LUKS"
         exit
       fi
-
+      
       cryptsetup -q luksFormat --key-file $KEYFILE $DEVICE
       LUKS_UUID=$(cryptsetup luksUUID $DEVICE)
       cryptsetup -q luksOpen --key-file $KEYFILE $DEVICE ${v.name}
@@ -54,4 +54,4 @@ write_files:
       # add to fstab:
       echo -e "\nLABEL=ETCDK8S    ${v.mount}    ${v.fs_type}    defaults,nofail,x-systemd.requires=cloud-init.service,_netdev,comment=cloudconfig      0 2" >> /etc/fstab
       #
-%{ endfor ~}
+    %{ endfor ~}

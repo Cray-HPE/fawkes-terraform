@@ -23,8 +23,10 @@
 #
 
 output "key" {
-  value = { for k, v in var.keys : k => merge(
-    v,
-    { "content" = random_password.key[k].result }
-  )}
+  value = {
+    for k, v in var.keys : k => merge(
+      v,
+      { "content" = random_password.key[k].result }
+    )
+  }
 }

@@ -22,14 +22,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-### REQUIRED SECTION
-
 variable "volumes" {
   description = "List of volumes for the VM"
   type        = any
 }
-
-### OPTIONAL SECTION
 
 variable "roles" {
   description = "List of roles for the VM"
@@ -44,6 +40,7 @@ variable "volume_format" {
 }
 
 variable "base_volume" {
+  type    = map(string)
   default = {
     name   = "kubernetes-vm"
     uri    = "/vms/images"
