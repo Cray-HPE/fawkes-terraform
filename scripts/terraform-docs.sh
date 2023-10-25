@@ -36,7 +36,7 @@ if [ ! -d ./modules ]; then
 fi
 
 for module in ./modules/*; do
-    terraform-docs markdown table "./$module"
+    terraform-docs "./$module"
 done
 
 echo 'Done.. do not forget to commit your changes :)'
