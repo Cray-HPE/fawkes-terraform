@@ -48,6 +48,6 @@ module "domain" {
 
 # change to for_each and use network
 module "network" {
-  source   = "../networks"
+  source   = "./networks"
   networks = var.local_networks
 }
