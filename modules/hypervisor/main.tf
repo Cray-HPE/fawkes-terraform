@@ -24,7 +24,7 @@
 
 module "domain" {
   for_each = var.domains
-  source   = "./kubernetes"
+  source   = "./modules/kubernetes"
 
   environment        = var.environment
   prefix             = var.prefix
@@ -48,6 +48,6 @@ module "domain" {
 
 # change to for_each and use network
 module "network" {
-  source   = "./networks"
+  source   = "./modules/networks"
   networks = var.local_networks
 }
