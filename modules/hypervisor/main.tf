@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,30 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+module "domain" {
+  for_each = var.domains
+  source = "./kubernetes"
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
+  environment         = var.environment
+  prefix              = var.prefix
+  vcpu                = each.value.vcpu
+  memory              = each.value.memory
+  name                = each.key
+  hypervisor_name     = var.hypervisor_name
+  network_interfaces  = each.value.network_interfaces
+  pci_devices         = each.value.pci_devices
+  base_volume         = each.value.base_volume
+  local_networks      = [ for k,v in each.value.local_networks : merge(
+    v,
+    (v.create ? { "id" = module.network.id[v.name]} : {})
+  )]
+  roles               = each.value.roles
+  volumes             = each.value.volumes
+  ssh_keys            = each.value.ssh_keys
+}
 
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+# change to for_each and use network
+module "network" {
+  source = "./networks"
+  networks = var.local_networks
+}

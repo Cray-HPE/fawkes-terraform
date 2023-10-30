@@ -10,6 +10,13 @@ hypervisor_defaults:
     static: false
     mtu: 1500
     mode: none
+  local_networks:
+    - name: isolated
+      addresses:
+        - "192.168.201.0/24"
+        #- "2001:db8:ca2:2::1/64"
+#    - name: management
+#      create: false
 
 storage_pools_defaults:
   pool:
@@ -18,7 +25,18 @@ storage_pools_defaults:
 
 luks_keys:
   luks-etcd:
+    length: 128
     filename: /etc/pki/luks-etcd.key
+
+network_defaults:
+  addresses: []
+  dhcp4: false
+  dhcp6: false
+  static: false
+  mtu: 1500
+  mode: none
+  create: true
+  autostart: true
 
 # this needs to match the VM roles
 volumes_defaults:

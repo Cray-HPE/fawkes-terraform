@@ -1,7 +1,18 @@
 globals:
   env_name: prod
+  prefix: kubernetes
 
 hypervisor_defaults: {}
+
+network_defaults:
+  addresses: []
+  dhcp4: true
+  dhcp6: false
+  static: false
+  mtu: 9000
+  mode: none
+  create: true
+  autostart: true
 
 storage_pools_defaults:
   pool:

@@ -76,10 +76,10 @@ variable "vcpu" {
   default     = 2
 }
 
-variable "local_network" {
+variable "local_networks" {
   description = "A list of local networks to add to the VM. This is used for development."
   type        = any
-  default     = {}
+  default     = []
 }
 
 variable "network_interfaces" {
@@ -95,6 +95,21 @@ variable "environment" {
 }
 
 variable "ssh_keys" {
-  type = list(string)
+  type    = list(string)
   default = []
+}
+
+variable "pci_devices" {
+  description = "List of all the PCI devices that will be passed to the VM"
+  type        = list(any)
+  default     = []
+}
+
+variable "hypervisor_name" {
+  type = string
+}
+
+variable "prefix" {
+  type    = string
+  default = "kubernetes"
 }

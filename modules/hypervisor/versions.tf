@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -22,14 +21,11 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-
-
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
-
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+terraform {
+  required_providers {
+    libvirt = {
+      source  = "dmacvicar/libvirt"
+      version = "0.7.1"
+    }
+  }
+}

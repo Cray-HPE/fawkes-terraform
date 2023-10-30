@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # MIT License
 #
@@ -23,13 +22,36 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+variable "local_networks" {
+  type    = any
+  default = []
+}
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
+variable "domains" {
+  type    = any
+  default = {}
+}
 
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
+variable "environment" {
+  type    = string
+  default = "undef"
+}
 
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+variable "data_path" {
+  type    = string
+  default = "/"
+}
+
+variable "luks_keys" {
+  type    = map(string)
+  default = {}
+}
+
+variable "hypervisor_name" {
+  type = string
+}
+
+variable "prefix" {
+  type    = string
+  default = ""
+}

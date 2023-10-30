@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # MIT License
 #
@@ -23,13 +23,14 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+PCI_DEVICES="1077:* 17db:* 15b3:*"
+OUTPUT_FILTER="{ hypervisors: { h001: { pci_mapping: . } } }"
+YQ=yq
+XQ="yq -pxml --xml-attribute-prefix="
+JQ=jq
 
-# Used for terragrunt modules.
-HTTP_PROXY=http://10.79.90.46:443
-export HTTP_PROXY
-
-# Used for cloning our custom modules.
-HTTPS_PROXY=http://10.79.90.46:443
-export HTTPS_PROXY
-
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+# find all PCI devices based on vendor_id
+devices=$(for v in $PCI_DEVICES; do lspci -mnnD -d ${v} ; done | while read card info; do echo pci_${card//[:\.]/_} ; done)
+# loop over all devices
+res=$(for d in ${devices}; do virsh nodedev-dumpxml $d | $XQ '[.device.capability.iommuGroup.address]' ; done | $YQ -ojson)
+echo -e "${res}" | $JQ -s "flatten|unique|${OUTPUT_FILTER}"
