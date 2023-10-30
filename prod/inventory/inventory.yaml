@@ -2,7 +2,8 @@ globals:
   env_name: prod
   prefix: kubernetes
 
-hypervisor_defaults: {}
+hypervisor_defaults:
+  local_networks: []
 
 network_defaults:
   addresses: []
