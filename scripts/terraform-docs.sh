@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # MIT License
 #
@@ -21,14 +22,21 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-### OPTIONAL SECTION
-variable "name" {
-  default     = "kubernetes"
-  description = "Name of the pool."
-  type        = string
-}
 
-variable "libvirt_uri" {
-  description = "QEMU System URI"
-  type        = string
-}
+set -e
+
+if ! command -v terraform-docs >/dev/null 2>&1 ; then
+    echo 'Missing terraform-docs: https://github.com/terraform-docs/terraform-docs/#installation' >&2
+    exit 1
+fi
+
+if [ ! -d ./modules ]; then
+    echo 'Run this from the root of the repository.' >&2
+    exit 2
+fi
+
+for module in ./modules/*; do
+    terraform-docs "./$module"
+done
+
+echo 'Done.. do not forget to commit your changes :)'

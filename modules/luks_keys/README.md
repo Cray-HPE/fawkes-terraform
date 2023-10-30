@@ -2,13 +2,13 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~>3 |
+| random | ~>3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_random"></a> [random](#provider\_random) | ~>3 |
+| random | ~>3 |
 
 ## Modules
 
@@ -24,10 +24,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_keys"></a> [keys](#input\_keys) | n/a | `map` | `{}` | no |
+| keys | n/a | `map` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_key"></a> [key](#output\_key) | n/a |
+| key | n/a |

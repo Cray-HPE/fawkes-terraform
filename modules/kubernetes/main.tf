@@ -23,8 +23,8 @@
 #
 
 locals {
-  volumes = { for k, v in var.volumes : "${k}-${v.name}" => v }
-  pools   = { for v in var.volumes : (v.pool.name) => v.pool.prefix... }
+  volumes             = {for k, v in var.volumes : "${k}-${v.name}" => v}
+  pools               = {for v in var.volumes : (v.pool.name) => v.pool.prefix...}
   # This results in :
   #  {
   #    "default" = [
@@ -40,12 +40,24 @@ locals {
   # which is not super elegant, but it works with each.value[0].
   # I don't have a solution to compact the value.
   _network_interfaces = flatten([
-    [for k, v in var.local_networks : { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }],
-    [for k, v in var.network_interfaces : { index = k + length(var.local_networks), dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.mode}-${v.target}" }]
+    [
+      for k, v in var.local_networks :
+      { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }
+    ],
+    [
+      for k, v in var.network_interfaces :
+      {
+        index   = k + length(var.local_networks),
+        dhcp4   = v.dhcp4,
+        dhcp6   = v.dhcp6,
+        mtu     = v.mtu,
+        comment = "${v.mode}-${v.target}"
+      }
+    ]
   ])
-  network_interfaces = { for k, v in local._network_interfaces : "eth${k}" => v }
-  prefix = var.prefix != "" ? "${var.prefix}-" : ""
-  hostname = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
+  network_interfaces = {for k, v in local._network_interfaces : "eth${k}" => v}
+  prefix             = var.prefix != "" ? "${var.prefix}-" : ""
+  hostname           = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
 }
 
 resource "libvirt_pool" "pool" {
@@ -73,22 +85,22 @@ resource "libvirt_volume" "vol" {
 }
 
 resource "libvirt_cloudinit_disk" "init" {
-  name = "${local.hostname}-init.iso"
-  pool = libvirt_pool.pool["default"].name
+  name      = "${local.hostname}-init.iso"
+  pool      = libvirt_pool.pool["default"].name
   meta_data = templatefile("${path.module}/templates/meta-data.yml",
     {
       hostname = local.hostname
-  })
+    })
   network_config = templatefile("${path.module}/templates/network-config.yml",
     {
       interfaces = local.network_interfaces
-  })
+    })
   user_data = templatefile("${path.module}/templates/user-data.yml",
     {
       hostname = local.hostname
       volumes  = local.volumes
       ssh_keys = var.ssh_keys
-  })
+    })
 }
 
 resource "libvirt_domain" "vm" {

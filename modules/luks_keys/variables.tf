@@ -23,6 +23,6 @@
 #
 
 variable "keys" {
-  type = map
+  type    = map
   default = {}
 }

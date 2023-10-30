@@ -23,7 +23,7 @@
 #
 
 resource "libvirt_network" "network" {
-  for_each  = { for k,v in var.networks : v.name => v if v.create }
+  for_each  = {for k, v in var.networks : v.name => v if v.create}
   name      = each.value.name
   autostart = try(each.value.autostart, true)
   mode      = each.value.mode

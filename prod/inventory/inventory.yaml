@@ -129,19 +129,24 @@ node_defaults:
   memory: 16384
   network_interfaces:
     - mode: macvtap
-      target: bond0.nmn0
+      target: bond0
       mtu: 9000
       dhcp4: true
+      dhcp6: false
+    - mode: macvtap
+      target: bond0.nmn0
+      mtu: 9000
+      dhcp4: false
       dhcp6: false
     - mode: macvtap
       target: bond0.hmn0
       mtu: 9000
-      dhcp4: true
+      dhcp4: false
       dhcp6: false
     - mode: macvtap
       target: bond0.cmn0
       mtu: 9000
-      dhcp4: true
+      dhcp4: false
       dhcp6: false
   base_volume:
     arch: x86_64

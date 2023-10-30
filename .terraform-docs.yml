@@ -1,0 +1,26 @@
+---
+formatter: "markdown table"
+
+output:
+  file: "README.md"
+  mode: replace
+  template: ""
+
+output-values:
+  enabled: false
+  from: ""
+
+sort:
+  enabled: true
+  by: name
+
+settings:
+  anchor: false
+  escape: true
+  default: true
+  html: true
+  lockfile: true
+  read-comments: true
+  required: true
+  sensitive: true
+  type: true
