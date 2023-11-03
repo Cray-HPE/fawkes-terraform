@@ -103,6 +103,7 @@ variable "pci_devices" {
 }
 
 variable "disable_spice" {
+  type    = bool
   default = false
 }
 
