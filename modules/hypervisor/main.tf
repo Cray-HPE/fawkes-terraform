@@ -22,12 +22,18 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
+locals {
+  _domains_keys = { for k,v in keys(var.domains) : v=>k }
+  domains = { for k,v in var.domains : k=> merge({ "index" = local._domains_keys[k] }, v) }
+}
+
 module "domain" {
-  for_each = var.domains
+  for_each = local.domains
   source   = "./modules/kubernetes"
 
   environment        = var.environment
   prefix             = var.prefix
+  index              = each.value.index
   vcpu               = each.value.vcpu
   memory             = each.value.memory
   name               = each.key

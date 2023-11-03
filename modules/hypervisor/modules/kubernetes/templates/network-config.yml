@@ -2,9 +2,10 @@
 network:
   version: 2
   ethernets:
-  %{ for k,v in interfaces ~}
-${k}: # ${v.comment}
-  dhcp4: ${v.dhcp4}
-  dhcp6: ${v.dhcp6}
-  mtu: ${v.mtu}
-  %{ endfor ~}
+  %{~ for k,v in interfaces ~}
+    ${k}:
+      dhcp4: ${v.dhcp4}
+      dhcp6: ${v.dhcp6}
+      mtu: ${v.mtu}
+      %{~ endfor ~}
+

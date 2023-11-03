@@ -102,6 +102,10 @@ variable "pci_devices" {
   default     = []
 }
 
+variable "disable_spice" {
+  default = false
+}
+
 variable "hypervisor_name" {
   type = string
 }
@@ -109,4 +113,9 @@ variable "hypervisor_name" {
 variable "prefix" {
   type    = string
   default = "kubernetes"
+}
+
+variable "index" {
+  type = number
+  default = 0
 }

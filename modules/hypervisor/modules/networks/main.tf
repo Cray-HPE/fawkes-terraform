@@ -27,9 +27,19 @@ resource "libvirt_network" "network" {
   name      = each.value.name
   autostart = try(each.value.autostart, true)
   mode      = each.value.mode
-  addresses = each.value.addresses
+  addresses = [each.value.addresses]
   mtu       = each.value.mtu
   dhcp {
     enabled = each.value.dhcp4 || each.value.dhcp6
+  }
+
+  dnsmasq_options {
+    dynamic options {
+      for_each = var.dnsmasq_options
+      content {
+        option_name = options.key
+        option_value = options.value
+      }
+    }
   }
 }

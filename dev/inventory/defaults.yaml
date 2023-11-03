@@ -2,9 +2,12 @@ hypervisor_defaults:
   uri: qemu:///system
   local_networks:
     - name: isolated
-      addresses:
-        - "192.168.201.0/24"
+      addresses: "192.168.201.0/24"
         #- "2001:db8:ca2:2::1/64"
+      dhcp4_range: "10-200"
+      dhcp4: true
+      static: true
+      mode: route
 #    - name: management
 #      create: false
 
@@ -21,6 +24,7 @@ luks_keys:
 network_defaults:
   addresses: [ ]
   dhcp4: false
+  dhcp4_range: "2-254"
   dhcp6: false
   static: false
   mtu: 1500
@@ -107,16 +111,17 @@ volumes_defaults:
 node_defaults:
   vcpu: 2
   memory: 4096
-  network_interfaces:
-    - mode: macvtap
-      target: enp42s0
-      mtu: 1500
-      dhcp4: true
-      dhcp6: false
+  network_interfaces: []
+  #  - mode: macvtap
+  #    target: enp42s0
+  #    mtu: 1500
+  #    dhcp4: true
+  #    dhcp6: false
   base_volume:
     arch: x86_64
     format: qcow2
     name: kubernetes-vm
     size: 20
     uri: /vms/images
+  # ssh keys are also read and merged from ./ssh-keys
   ssh_keys: [ ]
