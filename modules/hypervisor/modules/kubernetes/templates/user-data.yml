@@ -4,27 +4,27 @@ hostname: ${hostname}
 fqdn: ${hostname}.local
 manage_etc_hosts: true
 fs_setup:
-  %{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
+  %{~ for v in { for k,v in volumes : k=>v if v.initialize } ~}
   - label: ${v.label}
     filesystem: ${v.fs_type}
     overwrite: ${try(v.wipe, false)}
     device: /dev/disk/by-id/wwn-0x${v.wwn}
-    %{ endfor ~}
+    %{~ endfor ~}
 mounts:
   # [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs-freq, fs_passno ].
-  %{ for v in { for k,v in volumes : k=>v if v.initialize } ~}
+  %{~ for v in { for k,v in volumes : k=>v if v.initialize } ~}
   - [ "/dev/disk/by-id/wwn-0x${v.wwn}", "${v.mount}", "${v.fs_type}" ]
-      %{ endfor ~}
+  %{~ endfor ~}
 users:
   - name: root
     ssh_authorized_keys: ${jsonencode(ssh_keys)}
 write_files:
   - path: "/tmp/write_files"
     content: "write_files"
-  %{ for k,v in { for k,v in volumes : k=>v if try(v.luks.key, "") != "" } ~}
+  %{~ for k,v in { for k,v in volumes : k=>v if try(v.luks.key, "") != "" } ~}
   - path: ${v.luks.filename}
     permissions: "0400"
-    content: ${indent(4, yamlencode(v.luks.content))}
+    content: ${jsonencode(v.luks.content)}
   - path: /var/lib/cloud/scripts/per-instance/luks-setup-${v.name}.sh
     permissions: "0755"
     content: |
@@ -50,8 +50,8 @@ write_files:
       # mount
       mount /dev/mapper/${v.name} ${v.mount}
       # add to crypttab:
-      echo -e "etcd    $LUKS_UUID    $KEYFILE" >> /etc/crypttab && chmod 600 /etc/crypttab
+      echo -e "etcd    UUID=$LUKS_UUID    $KEYFILE" >> /etc/crypttab && chmod 600 /etc/crypttab
       # add to fstab:
       echo -e "\nLABEL=ETCDK8S    ${v.mount}    ${v.fs_type}    defaults,nofail,x-systemd.requires=cloud-init.service,_netdev,comment=cloudconfig      0 2" >> /etc/fstab
       #
-    %{ endfor ~}
+    %{~ endfor ~}

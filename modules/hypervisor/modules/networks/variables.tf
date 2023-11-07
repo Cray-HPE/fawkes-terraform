@@ -38,3 +38,8 @@ variable "dns_local_only" {
   type        = bool
   default     = true
 }
+
+variable "dnsmasq_options" {
+  type    = map(string)
+  default = {}
+}

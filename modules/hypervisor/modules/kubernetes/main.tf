@@ -23,8 +23,8 @@
 #
 
 locals {
-  volumes             = {for k, v in var.volumes : "${k}-${v.name}" => v}
-  pools               = {for v in var.volumes : (v.pool.name) => v.pool.prefix...}
+  volumes = { for k, v in var.volumes : "${k}-${v.name}" => v }
+  pools   = { for v in var.volumes : (v.pool.name) => v.pool.prefix... }
   # This results in :
   #  {
   #    "default" = [
@@ -41,23 +41,33 @@ locals {
   # I don't have a solution to compact the value.
   _network_interfaces = flatten([
     [
-      for k, v in var.local_networks :
-      { index = 0, dhcp4 = v.dhcp4, dhcp6 = v.dhcp6, mtu = v.mtu, comment = "${v.name}-${v.mode}" }
+      for k, v in local.local_networks :
+      {
+        dhcp4     = v.dhcp4,
+        dhcp6     = v.dhcp6,
+        mtu       = v.mtu,
+        addresses = v.addresses
+      }
     ],
     [
       for k, v in var.network_interfaces :
       {
-        index   = k + length(var.local_networks),
-        dhcp4   = v.dhcp4,
-        dhcp6   = v.dhcp6,
-        mtu     = v.mtu,
-        comment = "${v.mode}-${v.target}"
+        dhcp4 = v.dhcp4,
+        dhcp6 = v.dhcp6,
+        mtu   = v.mtu,
       }
     ]
   ])
-  network_interfaces = {for k, v in local._network_interfaces : "eth${k}" => v}
-  prefix             = var.prefix != "" ? "${var.prefix}-" : ""
-  hostname           = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
+  network_interfaces = { for k, v in local._network_interfaces : "eth${k}" => v }
+  # add a generated addresses attribute, based on the index of the current domain
+  local_networks = { for k, v in var.local_networks : k => merge(v, { addresses = [cidrhost(v.addresses, split("-", v.dhcp4_range)[0] + var.index)] }) }
+
+  prefix                            = var.prefix != "" ? "${var.prefix}-" : ""
+  hostname                          = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
+  # the yamldecode calls will fail if the templates do not generate valid YAML
+  validate_cloudinit_meta_data      = yamldecode(libvirt_cloudinit_disk.init.meta_data)
+  validate_cloudinit_network_config = yamldecode(libvirt_cloudinit_disk.init.network_config)
+  validate_cloudinit_user_data      = yamldecode(libvirt_cloudinit_disk.init.user_data)
 }
 
 resource "libvirt_pool" "pool" {
@@ -85,22 +95,22 @@ resource "libvirt_volume" "vol" {
 }
 
 resource "libvirt_cloudinit_disk" "init" {
-  name      = "${local.hostname}-init.iso"
-  pool      = libvirt_pool.pool["default"].name
+  name = "${local.hostname}-init.iso"
+  pool = libvirt_pool.pool["default"].name
   meta_data = templatefile("${path.module}/templates/meta-data.yml",
     {
       hostname = local.hostname
-    })
+  })
   network_config = templatefile("${path.module}/templates/network-config.yml",
     {
       interfaces = local.network_interfaces
-    })
+  })
   user_data = templatefile("${path.module}/templates/user-data.yml",
     {
       hostname = local.hostname
       volumes  = local.volumes
       ssh_keys = var.ssh_keys
-    })
+  })
 }
 
 resource "libvirt_domain" "vm" {
@@ -113,8 +123,9 @@ resource "libvirt_domain" "vm" {
   cloudinit = libvirt_cloudinit_disk.init.id
 
   dynamic "network_interface" {
-    for_each = var.local_networks
+    for_each = local.local_networks
     content {
+      addresses      = network_interface.value.static ? network_interface.value.addresses : null
       network_id     = network_interface.value.create ? network_interface.value.id : null
       network_name   = network_interface.value.create ? null : network_interface.value.name
       hostname       = local.hostname
@@ -149,16 +160,10 @@ resource "libvirt_domain" "vm" {
     target_port = "0"
   }
 
-  graphics {
-    type        = "spice"
-    listen_type = "address"
-    autoport    = true
-  }
-
-  dynamic "xml" {
-    for_each = length(var.pci_devices) > 0 ? ["1"] : []
-    content {
-      xslt = templatefile("${path.module}/templates/domain-xslt.xml.tpl", { pci_data = var.pci_devices } )
-    }
+  xml {
+    xslt = templatefile("${path.module}/templates/domain-xslt.xml.tpl", {
+      pci_data = var.pci_devices
+      disable_spice = var.disable_spice
+    })
   }
 }
