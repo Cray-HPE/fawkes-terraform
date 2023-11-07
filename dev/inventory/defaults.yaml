@@ -112,11 +112,11 @@ node_defaults:
   vcpu: 2
   memory: 4096
   network_interfaces:
-   - mode: macvtap
-     target: enp42s0
-     mtu: 1500
-     dhcp4: true
-     dhcp6: false
+    - mode: macvtap
+      target: enp42s0
+      mtu: 1500
+      dhcp4: true
+      dhcp6: false
   base_volume:
     arch: x86_64
     format: qcow2
