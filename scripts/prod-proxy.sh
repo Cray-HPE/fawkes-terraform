@@ -32,4 +32,9 @@ export HTTP_PROXY
 HTTPS_PROXY=http://10.79.90.46:443
 export HTTPS_PROXY
 
-echo "Remember to unset HTTP_PROXY and HTTPS_PROXY before running 'terragrunt apply'."
+# Avoid proxy for local destinations
+NO_PROXY=10.0.0.0/8,hypervisor.local,192.168.0.0/16,172.16.0.0/12
+export NO_PROXY
+
+echo "Setting proxy related env vars: "
+set|grep PROXY

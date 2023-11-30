@@ -96,10 +96,10 @@ variable "ssh_keys" {
   default = []
 }
 
-variable "pci_devices" {
-  description = "List of all the PCI devices that will be passed to the VM"
-  type        = list(any)
-  default     = []
+variable "hardware" {
+  description = "List of hardware devices that will be passed to the VM, defined as domain, bus, slot, function"
+  type        = any
+  default     = {}
 }
 
 variable "disable_spice" {
