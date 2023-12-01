@@ -140,3 +140,6 @@ hardware_defaults:
   realtek_net:
     vendor: "0x10ec"
     product: "0x8168"
+  mellanox:
+    vendor: "0x1017"
+    product: "0x15b3"

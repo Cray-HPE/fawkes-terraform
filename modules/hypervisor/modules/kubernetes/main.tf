@@ -62,6 +62,7 @@ locals {
   # add a generated addresses attribute, based on the index of the current domain
   local_networks = { for k, v in var.local_networks : k => merge(v, { addresses = [cidrhost(v.addresses, split("-", v.dhcp4_range)[0] + var.index)] }) }
 
+  pci_data = distinct(flatten([for k,v in var.hardware: v.pci_data]))
   prefix   = var.prefix != "" ? "${var.prefix}-" : ""
   hostname = "${local.prefix}${var.hypervisor_name}-${var.name}-${var.roles[0]}"
   # the yamldecode calls will fail if the templates do not generate valid YAML
@@ -162,7 +163,7 @@ resource "libvirt_domain" "vm" {
 
   xml {
     xslt = templatefile("${path.module}/templates/domain-xslt.xml.tpl", {
-      pci_data      = distinct(flatten([for k,v in var.hardware: v.iommu_group_addresses]))
+      pci_data      = local.pci_data
       disable_spice = var.disable_spice
     })
   }

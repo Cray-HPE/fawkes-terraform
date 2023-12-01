@@ -67,11 +67,26 @@ locals {
   # filter PCI devices based on the list from local._hardware
   _devices = { for k, v in data.libvirt_node_device_info.all_pci :
     k => {
-      id                    = local._hardware_ids[format("%s:%s", v.capability.0.vendor.id, v.capability.0.product.id)]
-      name                  = v.capability.0.vendor.name
-      product               = v.capability.0.product.name
+      id           = local._hardware_ids[format("%s:%s", v.capability.0.vendor.id, v.capability.0.product.id)]
+      vendor_name  = v.capability.0.vendor.name
+      product_name = v.capability.0.product.name
+      pci_data = {
+        class    = v.capability.0.class
+        type     = v.capability.0.type
+        domain   = format("0x%04x",v.capability.0.domain)
+        bus      = format("0x%02x",v.capability.0.bus)
+        slot     = format("0x%02x",v.capability.0.slot)
+        function = format("0x%01x",v.capability.0.function)
+      }
       iommu_group           = v.capability.0.iommu_group.0.number
-      iommu_group_addresses = [for a in v.capability.0.iommu_group.0.addresses : merge(a, { "iommu_group" = v.capability.0.iommu_group.0.number })]
+      iommu_group_addresses = [for a in v.capability.0.iommu_group.0.addresses : merge(
+        a,
+        {
+          "iommu_group" = v.capability.0.iommu_group.0.number
+          "type" = v.capability.0.type
+          "class" = v.capability.0.class
+        }
+      )]
     } if contains(local._hardware, [v.capability.0.vendor.id, v.capability.0.product.id])
   }
 }
