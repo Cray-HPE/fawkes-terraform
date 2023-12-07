@@ -127,13 +127,10 @@ node_defaults:
   # ssh keys are also read and merged from ./ssh-keys
   ssh_keys: [ ]
 
+# To find this information, for network cards:
+# Linux: lshw -businfo -class network -disable scsi -disable usb -numeric
+# MacOS: system_profiler -json SPNetworkDataType
 hardware_defaults:
-  amd:
-    vendor: "0x1002"
-    product: "0x73bf"
-  sandisk:
-    vendor: "0x15b7"
-    product: "0x5009"
   realtek:
     vendor: "0x10ec"
     product : "0x8125"
