@@ -51,6 +51,11 @@ variable "hypervisor_name" {
   type = string
 }
 
+variable "hardware" {
+  type    = list(any)
+  default = []
+}
+
 variable "prefix" {
   type    = string
   default = ""

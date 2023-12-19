@@ -23,8 +23,8 @@
 #
 
 locals {
-  _domains_keys = { for k,v in keys(var.domains) : v=>k }
-  domains = { for k,v in var.domains : k=> merge({ "index" = local._domains_keys[k] }, v) }
+  _domains_keys = { for k, v in keys(var.domains) : v => k }
+  domains       = { for k, v in var.domains : k => merge({ "index" = local._domains_keys[k] }, v) }
 }
 
 module "domain" {
@@ -39,9 +39,10 @@ module "domain" {
   name               = each.key
   hypervisor_name    = var.hypervisor_name
   network_interfaces = each.value.network_interfaces
-  pci_devices        = each.value.pci_devices
-  base_volume        = each.value.base_volume
-  local_networks     = [
+  # filter the local._devices map to pass to the guest only the mapped devices, by tag
+  hardware    = { for k, v in local._devices : k => v if contains(each.value.hardware_map, v.id) }
+  base_volume = each.value.base_volume
+  local_networks = [
     for k, v in each.value.local_networks : merge(
       v,
       (v.create ? { "id" = module.network.id[v.name] } : {})
@@ -56,4 +57,57 @@ module "domain" {
 module "network" {
   source   = "./modules/networks"
   networks = var.local_networks
+}
+
+locals {
+  # extract list of vendor:product pairs from inventory
+  _hardware = [for k, v in var.hardware : [values(v)[0].vendor, values(v)[0].product]]
+  # translate the vendor:product list so we can identify the tag easily
+  _hardware_ids = { for k, v in var.hardware : format("%s:%s", values(v)[0].vendor, values(v)[0].product) => keys(v)[0] }
+  # filter PCI devices based on the list from local._hardware
+  _devices = { for k, v in data.libvirt_node_device_info.all_pci :
+    k => {
+      id           = local._hardware_ids[format("%s:%s", v.capability.0.vendor.id, v.capability.0.product.id)]
+      vendor_name  = v.capability.0.vendor.name
+      product_name = v.capability.0.product.name
+      pci_data = {
+        class    = v.capability.0.class
+        type     = v.capability.0.type
+        domain   = format("0x%04x",v.capability.0.domain)
+        bus      = format("0x%02x",v.capability.0.bus)
+        slot     = format("0x%02x",v.capability.0.slot)
+        function = format("0x%01x",v.capability.0.function)
+      }
+      iommu_group           = v.capability.0.iommu_group.0.number
+      iommu_group_addresses = [for a in v.capability.0.iommu_group.0.addresses : merge(
+        a,
+        {
+          "iommu_group" = v.capability.0.iommu_group.0.number
+          "type" = v.capability.0.type
+          "class" = v.capability.0.class
+        }
+      )]
+    } if contains(local._hardware, [v.capability.0.vendor.id, v.capability.0.product.id])
+  }
+}
+
+data "libvirt_node_devices" "pci" {
+  capability = "pci"
+}
+
+data "libvirt_node_info" "info" {
+
+}
+
+data "libvirt_node_device_info" "all_pci" {
+  for_each = toset(data.libvirt_node_devices.pci.devices)
+  name     = each.value
+}
+
+output "h_devices" {
+  value = local._devices
+}
+
+output "hardware" {
+  value = var.hardware
 }

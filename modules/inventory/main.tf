@@ -32,7 +32,6 @@ locals {
     trimspace(file(format("${var.data_path}/%s", f)))
   ]
   globals = local.inventory.globals
-
   _hypervisor_defaults = merge(
     local.inventory.hypervisor_defaults,
     {
@@ -42,7 +41,11 @@ locals {
       ]
     }
   )
-  _hypervisors = {for k, v in local.inventory.hypervisors : k => merge(local._hypervisor_defaults, v)}
+  _hypervisors = { for k, v in local.inventory.hypervisors : k => merge(
+    local._hypervisor_defaults,
+    v,
+    { "hardware" = [for hk in try(v.hardware, []) : { (hk) = local.inventory.hardware_defaults[hk] }] },
+  ) }
 
   hypervisors = {
     for k, v in local._hypervisors : k => merge(
@@ -50,20 +53,21 @@ locals {
       {
         "vms" = {
           for vmk, vmv in v.vms : vmk => merge(
+            // order here is important as later parameters in merge overwrite previous ones or coming from inventory
             local.inventory.node_defaults,
-            { "hv_name" = k },
-            { "vm_name" = vmk },
-            { "roles" = vmv.roles },
-            { "local_networks" = v.local_networks },
             {
+              "hv_name"        = k
+              "vm_name"        = vmk
+              "roles"          = vmv.roles
+              "local_networks" = v.local_networks
               "base_volume" = length(regexall("hypervisor(\\.local)?/system", local._hypervisors[k].uri)) > 0 ? merge(
                 local.inventory.node_defaults.base_volume,
                 { "uri" : replace(local.inventory.node_defaults.base_volume.uri, "bootserver", "management-vm.local") }
               ) : local.inventory.node_defaults.base_volume
+              "volumes"      = flatten([for vk, vv in vmv.roles : local._volumes_defaults[vv]])
+              "ssh_keys"     = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys]))
+              "hardware_map" = try(vmv.hardware_map, [])
             },
-            { "volumes" = flatten([for vk, vv in vmv.roles : local._volumes_defaults[vv]]) },
-            { "ssh_keys" = distinct(flatten([local.inventory.node_defaults.ssh_keys, local.ssh_keys])) },
-            { "pci_devices" = try(v.pci_passthrough, false) ? local._hypervisors[v.hv_name].pci_devices : [] },
             vmv
           )
         }

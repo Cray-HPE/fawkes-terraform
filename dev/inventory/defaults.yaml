@@ -111,12 +111,13 @@ volumes_defaults:
 node_defaults:
   vcpu: 2
   memory: 4096
-  network_interfaces:
-    - mode: macvtap
-      target: enp42s0
-      mtu: 1500
-      dhcp4: true
-      dhcp6: false
+  network_interfaces: []
+  # network_interfaces:
+  #   - mode: macvtap
+  #     target: enp42s0
+  #     mtu: 1500
+  #     dhcp4: true
+  #     dhcp6: false
   base_volume:
     arch: x86_64
     format: qcow2
@@ -125,3 +126,17 @@ node_defaults:
     uri: /vms/images
   # ssh keys are also read and merged from ./ssh-keys
   ssh_keys: [ ]
+
+# To find this information, for network cards:
+# Linux: lshw -businfo -class network -disable scsi -disable usb -numeric
+# MacOS: system_profiler -json SPNetworkDataType
+hardware_defaults:
+  realtek:
+    vendor: "0x10ec"
+    product : "0x8125"
+  realtek_net:
+    vendor: "0x10ec"
+    product: "0x8168"
+  mellanox:
+    vendor: "0x1017"
+    product: "0x15b3"

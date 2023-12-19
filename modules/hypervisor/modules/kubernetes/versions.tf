@@ -25,8 +25,8 @@
 terraform {
   required_providers {
     libvirt = {
-      source  = "dmacvicar/libvirt"
-      version = "0.7.1"
+      source  = "cray-hpe/libvirt"
+      version = "0.7.5-cray-pre1"
     }
   }
 }
